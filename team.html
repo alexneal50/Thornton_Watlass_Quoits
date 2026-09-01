@@ -26,7 +26,7 @@
 
 <main class="wrap">
   <h1>Thornton Watlass, season <span id="season-year"></span></h1>
-  <p class="lede">Every rink we've played this season, and how each pairing has fared.</p>
+  <p class="lede">Every game we've played this season, and how each player has fared.</p>
 
   <div id="summary-slot"></div>
 
@@ -37,17 +37,18 @@
     </section>
 
     <section>
-      <h2>Player &amp; pairing stats</h2>
-      <p class="lede" style="font-size:.85rem;">Based on the names entered for each rink.</p>
+      <h2>Player stats</h2>
+      <p class="lede" style="font-size:.85rem;">Based on the scores and ringers entered for each game.</p>
       <div class="table-wrap">
         <table class="scores" id="player-table">
           <thead>
             <tr>
               <th>Player</th>
-              <th class="num">Rinks</th>
-              <th class="num">W</th>
-              <th class="num">L</th>
-              <th class="num">Pts&nbsp;Diff</th>
+              <th class="num">Won</th>
+              <th class="num">Lost</th>
+              <th class="num">Pts&nbsp;For</th>
+              <th class="num">Pts&nbsp;Agst</th>
+              <th class="num">Ringers</th>
             </tr>
           </thead>
           <tbody id="player-body"></tbody>
@@ -100,21 +101,21 @@ async function renderPage() {
         el.className = 'card';
         el.style.marginBottom = '14px';
         const pillClass = r.outcome === 'win' ? 'win' : r.outcome === 'loss' ? 'loss' : 'draw';
-        const rinkRows = r.rinks.map(rk => {
+        const gameRows = r.games.map(g => {
           const hi = r.isHome;
-          const ourP = hi ? rk.homePlayers : rk.awayPlayers;
-          const theirP = hi ? rk.awayPlayers : rk.homePlayers;
-          const ourS = hi ? rk.homeScore : rk.awayScore;
-          const theirS = hi ? rk.awayScore : rk.homeScore;
+          const ourP = hi ? g.homePlayer : g.awayPlayer;
+          const theirP = hi ? g.awayPlayer : g.homePlayer;
+          const ourS = hi ? g.homeScore : g.awayScore;
+          const theirS = hi ? g.awayScore : g.homeScore;
           return `<tr><td>${ourP}</td><td class="num">${ourS}&ndash;${theirS}</td><td>${theirP}</td></tr>`;
         }).join('');
         el.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
             <h3 style="margin:0;">vs ${r.opponent} <span style="font-weight:400; color:var(--ink-soft); font-size:.85rem;">(${r.isHome ? 'Home' : 'Away'})</span></h3>
-            <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamRinks}&ndash;${r.oppRinks} rinks</span>
+            <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamGames}&ndash;${r.oppGames} games</span>
           </div>
           <p style="color:var(--ink-soft); font-size:.85rem; margin:2px 0 10px;">${formatDate(r.date)} &middot; ${r.teamPts}&ndash;${r.oppPts} points</p>
-          <table class="scores"><tbody>${rinkRows}</tbody></table>`;
+          <table class="scores"><tbody>${gameRows}</tbody></table>`;
         matchesSlot.appendChild(el);
       });
     }
@@ -122,17 +123,17 @@ async function renderPage() {
     const players = computePlayerStats(data, HOME_TEAM);
     const pbody = document.getElementById('player-body');
     if (players.length === 0) {
-      pbody.innerHTML = `<tr><td colspan="5" class="empty">No player data yet.</td></tr>`;
+      pbody.innerHTML = `<tr><td colspan="6" class="empty">No player data yet.</td></tr>`;
     }
     players.forEach(p => {
       const tr = document.createElement('tr');
-      const diff = p.pointsFor - p.pointsAgainst;
       tr.innerHTML = `
         <td>${p.name}</td>
-        <td class="num">${p.rinksPlayed}</td>
-        <td class="num">${p.rinksWon}</td>
-        <td class="num">${p.rinksLost}</td>
-        <td class="num">${diff > 0 ? '+' : ''}${diff}</td>`;
+        <td class="num">${p.gamesWon}</td>
+        <td class="num">${p.gamesLost}</td>
+        <td class="num">${p.pointsFor}</td>
+        <td class="num">${p.pointsAgainst}</td>
+        <td class="num">${p.ringers}</td>`;
       pbody.appendChild(tr);
     });
   } catch (e) {

@@ -138,13 +138,13 @@ async function renderPage() {
       recentBody.innerHTML = `<tr><td colspan="4" class="empty">No results yet.</td></tr>`;
     }
     recent.forEach(m => {
-      const t = matchRinkTally(m);
+      const t = matchGameTally(m);
       const tr = document.createElement('tr');
       if (m.home === HOME_TEAM || m.away === HOME_TEAM) tr.className = 'highlight';
       tr.innerHTML = `
         <td>${formatDate(m.date)}</td>
         <td>${m.home}</td>
-        <td class="num">${t.homeRinks}&ndash;${t.awayRinks} <span style="color:var(--ink-soft); font-weight:400;">(${t.homePts}&ndash;${t.awayPts})</span></td>
+        <td class="num">${t.homeWins}&ndash;${t.awayWins} <span style="color:var(--ink-soft); font-weight:400;">(${t.homePts}&ndash;${t.awayPts})</span></td>
         <td>${m.away}</td>`;
       recentBody.appendChild(tr);
     });

@@ -61,10 +61,11 @@
         </div>
       </div>
 
-      <h3 style="margin-top:26px;">Rinks</h3>
-      <p class="lede" style="font-size:.85rem;">One row per pair playing to 21. Add as many rinks as your match had.</p>
-      <div id="rinks-list"></div>
-      <button type="button" class="ghost" id="add-rink-btn">+ Add rink</button>
+      <h3 style="margin-top:26px;">Games</h3>
+      <p class="lede" style="font-size:.85rem;">One row per singles game, playing to 21. Enter each player's points
+        and ringers &mdash; win/loss works out automatically from the scores.</p>
+      <div id="games-list"></div>
+      <button type="button" class="ghost" id="add-game-btn">+ Add game</button>
 
       <div style="margin-top:22px; display:flex; gap:10px; flex-wrap:wrap;">
         <button type="submit">Save match to this page</button>
@@ -79,14 +80,14 @@
     <div class="table-wrap">
       <table class="scores" id="matches-table">
         <thead>
-          <tr><th>Date</th><th>Home</th><th>Away</th><th class="num">Rinks</th><th></th></tr>
+          <tr><th>Date</th><th>Home</th><th>Away</th><th class="num">Games</th><th></th></tr>
         </thead>
         <tbody id="matches-body"></tbody>
       </table>
     </div>
   </section>
 
-  <section class="card" style="background:var(--parchment-2); border:none;">
+  <section class="card" style="background:var(--green-soft); border:none; box-shadow:none;">
     <h2>Publishing your changes</h2>
     <ol style="padding-left:20px; color:var(--ink-soft);">
       <li>Click <strong>Download updated data.json</strong> above.</li>
@@ -111,15 +112,28 @@ guardPage().then((user) => {
 <script>
 let DATA = null;
 
-function rinkRowTemplate(idx) {
+function gameRowTemplate(idx) {
   const div = document.createElement('div');
-  div.className = 'rink-row';
+  div.className = 'game-row';
   div.dataset.idx = idx;
   div.innerHTML = `
-    <div><label>Home pair</label><input type="text" class="r-home-players" placeholder="e.g. J. Metcalfe & S. Peacock"></div>
-    <div style="width:80px;"><label>Score</label><input type="number" class="r-home-score" min="0" max="21" required></div>
-    <div><label>Away pair</label><input type="text" class="r-away-players" placeholder="e.g. T. Wray & D. Iveson"></div>
-    <div style="width:80px;"><label>Score</label><input type="number" class="r-away-score" min="0" max="21" required></div>`;
+    <div class="game-side">
+      <label>Home player</label>
+      <input type="text" class="g-home-player" placeholder="e.g. J. Metcalfe">
+      <div class="game-side-fields">
+        <div><label>Points</label><input type="number" class="g-home-score" min="0" max="21" required></div>
+        <div><label>Ringers</label><input type="number" class="g-home-ringers" min="0" value="0"></div>
+      </div>
+    </div>
+    <div class="game-side">
+      <label>Away player</label>
+      <input type="text" class="g-away-player" placeholder="e.g. T. Wray">
+      <div class="game-side-fields">
+        <div><label>Points</label><input type="number" class="g-away-score" min="0" max="21" required></div>
+        <div><label>Ringers</label><input type="number" class="g-away-ringers" min="0" value="0"></div>
+      </div>
+    </div>
+    <button type="button" class="ghost remove-game" title="Remove game">&times;</button>`;
   return div;
 }
 
@@ -149,7 +163,7 @@ function renderMatchesTable() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${m.date}</td><td>${m.home}</td><td>${m.away}</td>
-      <td class="num">${m.rinks.length}</td>
+      <td class="num">${m.games.length}</td>
       <td><button type="button" class="ghost remove-match" data-id="${m.id}">Remove</button></td>`;
     body.appendChild(tr);
   });
@@ -176,7 +190,7 @@ async function initAdmin() {
   }
   refreshTeamSelects();
   renderMatchesTable();
-  document.getElementById('rinks-list').appendChild(rinkRowTemplate(0));
+  document.getElementById('games-list').appendChild(gameRowTemplate(0));
   document.getElementById('date').valueAsDate = new Date();
 }
 
@@ -190,9 +204,16 @@ document.getElementById('add-team-btn').addEventListener('click', () => {
   document.getElementById('away-team').value = name;
 });
 
-document.getElementById('add-rink-btn').addEventListener('click', () => {
-  const list = document.getElementById('rinks-list');
-  list.appendChild(rinkRowTemplate(list.children.length));
+document.getElementById('games-list').addEventListener('click', (e) => {
+  if (e.target.classList.contains('remove-game')) {
+    const list = document.getElementById('games-list');
+    if (list.children.length > 1) e.target.closest('.game-row').remove();
+  }
+});
+
+document.getElementById('add-game-btn').addEventListener('click', () => {
+  const list = document.getElementById('games-list');
+  list.appendChild(gameRowTemplate(list.children.length));
 });
 
 document.getElementById('match-form').addEventListener('submit', (e) => {
@@ -201,28 +222,30 @@ document.getElementById('match-form').addEventListener('submit', (e) => {
   const away = document.getElementById('away-team').value;
   if (home === away) { showMsg('Home and away teams must be different.', false); return; }
 
-  const rinkRows = [...document.querySelectorAll('.rink-row')];
-  const rinks = rinkRows.map(row => ({
-    homePlayers: row.querySelector('.r-home-players').value.trim(),
-    awayPlayers: row.querySelector('.r-away-players').value.trim(),
-    homeScore: Number(row.querySelector('.r-home-score').value),
-    awayScore: Number(row.querySelector('.r-away-score').value)
-  })).filter(r => !isNaN(r.homeScore) && !isNaN(r.awayScore));
+  const gameRows = [...document.querySelectorAll('.game-row')];
+  const games = gameRows.map(row => ({
+    homePlayer: row.querySelector('.g-home-player').value.trim(),
+    awayPlayer: row.querySelector('.g-away-player').value.trim(),
+    homeScore: Number(row.querySelector('.g-home-score').value),
+    awayScore: Number(row.querySelector('.g-away-score').value),
+    homeRingers: Number(row.querySelector('.g-home-ringers').value) || 0,
+    awayRingers: Number(row.querySelector('.g-away-ringers').value) || 0
+  })).filter(g => !isNaN(g.homeScore) && !isNaN(g.awayScore));
 
-  if (rinks.length === 0) { showMsg('Add at least one rink with scores.', false); return; }
+  if (games.length === 0) { showMsg('Add at least one game with scores.', false); return; }
 
   const match = {
     id: 'm-' + Date.now(),
     date: document.getElementById('date').value,
-    home, away, rinks
+    home, away, games
   };
   DATA.matches.push(match);
   renderMatchesTable();
   showMsg('Match saved to this page. Remember to download the updated data.json to publish it.', true);
 
-  // reset rinks + date, keep teams for quick multi-entry
-  document.getElementById('rinks-list').innerHTML = '';
-  document.getElementById('rinks-list').appendChild(rinkRowTemplate(0));
+  // reset games + date, keep teams for quick multi-entry
+  document.getElementById('games-list').innerHTML = '';
+  document.getElementById('games-list').appendChild(gameRowTemplate(0));
 });
 
 document.getElementById('download-btn').addEventListener('click', () => {

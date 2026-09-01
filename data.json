@@ -16,10 +16,10 @@
       "date": "2026-05-08",
       "home": "Thornton Watlass",
       "away": "Well",
-      "rinks": [
-        { "homePlayers": "J. Metcalfe & S. Peacock", "awayPlayers": "T. Wray & D. Iveson", "homeScore": 21, "awayScore": 14 },
-        { "homePlayers": "R. Coates & A. Barker",   "awayPlayers": "M. Foster & K. Hardy",  "homeScore": 18, "awayScore": 21 },
-        { "homePlayers": "P. Nelson & G. Todd",     "awayPlayers": "B. Simpson & L. Wray",  "homeScore": 21, "awayScore": 9  }
+      "games": [
+        { "homePlayer": "J. Metcalfe", "awayPlayer": "T. Wray", "homeScore": 21, "awayScore": 14, "homeRingers": 4, "awayRingers": 1 },
+        { "homePlayer": "S. Peacock", "awayPlayer": "D. Iveson", "homeScore": 18, "awayScore": 21, "homeRingers": 2, "awayRingers": 5 },
+        { "homePlayer": "R. Coates", "awayPlayer": "M. Foster", "homeScore": 21, "awayScore": 9, "homeRingers": 6, "awayRingers": 0 }
       ]
     }
   ]

@@ -67,7 +67,7 @@ to `login.html` if you're not.
 1. Open your site's `admin.html` page (e.g.
    `.../thornton-watlass-quoits/admin.html`).
 2. Fill in the date, pick home/away teams (add a new team if needed), and
-   enter each rink's pairing and score.
+   enter each game's player names, points, and ringers.
 3. Click **Save match to this page**, add more matches if you have several
    to enter, then click **Download updated data.json**.
 4. On GitHub.com, open your repo, click into `data.json`, click the pencil
@@ -86,10 +86,9 @@ else just visits the site to look.
 - **Season name**: edit the `season` field in `data.json`.
 - **Team names**: add teams via the admin page, or edit the `teams` array
   in `data.json` directly.
-- If your actual scoring format is different from "several 21-up rinks per
-  match" (e.g. a different number of ends, or singles rather than pairs),
-  let me know the exact format and I can adjust the scoring logic in
-  `stats.js`.
+- If your actual scoring format is different from "singles games to 21,
+  most games won decides the match", let me know and I can adjust the
+  scoring logic in `stats.js`.
 
 ## Notes
 
