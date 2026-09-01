@@ -1,0 +1,26 @@
+{
+  "season": "2026",
+  "homeTeam": "Thornton Watlass",
+  "pointsForWin": 2,
+  "pointsForDraw": 1,
+  "pointsForLoss": 0,
+  "teams": [
+    "Thornton Watlass",
+    "Well",
+    "Masham",
+    "Kirkby Malzeard"
+  ],
+  "matches": [
+    {
+      "id": "sample-1",
+      "date": "2026-05-08",
+      "home": "Thornton Watlass",
+      "away": "Well",
+      "rinks": [
+        { "homePlayers": "J. Metcalfe & S. Peacock", "awayPlayers": "T. Wray & D. Iveson", "homeScore": 21, "awayScore": 14 },
+        { "homePlayers": "R. Coates & A. Barker",   "awayPlayers": "M. Foster & K. Hardy",  "homeScore": 18, "awayScore": 21 },
+        { "homePlayers": "P. Nelson & G. Todd",     "awayPlayers": "B. Simpson & L. Wray",  "homeScore": 21, "awayScore": 9  }
+      ]
+    }
+  ]
+}
