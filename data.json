@@ -3,41 +3,88 @@
   "homeTeam": "Thornton Watlass",
   "teams": [
     "Thornton Watlass",
-    "Well",
-    "Masham",
-    "Kirkby Malzeard"
+    "Thirsk Institute",
+    "Riverside B",
+    "Riverside A",
+    "Fearby",
+"Tunstall",
+"Kirkby Fleetham A",
+"The Standard",
+"Hunton",
+"Kirklington A",
+"Hackforth",
+"Crakehall",
+"Skeeby",
+"Maunby",
+"Finghall",
+"Kirkby Fleetham B",
+"Newton Le Willows",
+"Kirklington B"
+
   ],
   "matches": [
     {
-      "id": "sample-1",
-      "date": "2026-05-08",
-      "type": "league",
-      "home": "Thornton Watlass",
-      "away": "Well",
+      "id": "m-1788258393491",
+      "date": "2026-04-28",
+      "type": "cup",
+      "home": "Fearby",
+      "away": "Thornton Watlass",
       "games": [
         {
-          "homePlayer": "J. Metcalfe",
-          "awayPlayer": "T. Wray",
+          "homePlayer": "R Braham",
+          "awayPlayer": "Simon Endersby",
+          "homeScore": 4,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 2
+        },
+        {
+          "homePlayer": "B Porteus",
+          "awayPlayer": "Ivan Knights",
+          "homeScore": 21,
+          "awayScore": 7,
+          "homeRingers": 2,
+          "awayRingers": 0
+        },
+        {
+          "homePlayer": "G Gillingham",
+          "awayPlayer": "Andy Newton",
           "homeScore": 21,
           "awayScore": 14,
-          "homeRingers": 4,
-          "awayRingers": 1
+          "homeRingers": 2,
+          "awayRingers": 0
         },
         {
-          "homePlayer": "S. Peacock",
-          "awayPlayer": "D. Iveson",
-          "homeScore": 18,
+          "homePlayer": "S Gillingham",
+          "awayPlayer": "Dave Smith",
+          "homeScore": 20,
           "awayScore": 21,
           "homeRingers": 2,
-          "awayRingers": 5
+          "awayRingers": 0
         },
         {
-          "homePlayer": "R. Coates",
-          "awayPlayer": "M. Foster",
+          "homePlayer": "J Drew",
+          "awayPlayer": "Steve Kilding",
+          "homeScore": 16,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 2
+        },
+        {
+          "homePlayer": "B Ward",
+          "awayPlayer": "Dave Hawes",
+          "homeScore": 16,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 7
+        },
+        {
+          "homePlayer": "A Dibb",
+          "awayPlayer": "Alex Neal",
           "homeScore": 21,
-          "awayScore": 9,
-          "homeRingers": 6,
-          "awayRingers": 0
+          "awayScore": 5,
+          "homeRingers": 1,
+          "awayRingers": 1
         }
       ]
     }
