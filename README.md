@@ -108,6 +108,14 @@ individual games.
 The league table ranks teams by total league points across the season,
 then by points difference.
 
+## Divisions
+
+Every team is tagged **1st Division** or **2nd Division** on the Enter
+Scores page, under "Teams & divisions". The league table only shows teams
+in Thornton Watlass's own division &mdash; teams from the other division
+still need to be added there so they're available to select for cup
+fixtures, they just won't appear in the table itself.
+
 ## Adjusting things later
 
 - **Season name**: edit the `season` field in `data.json`.

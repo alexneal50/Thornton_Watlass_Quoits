@@ -55,7 +55,11 @@
           <label for="new-team">Playing a team not listed yet? Add it</label>
           <div style="display:flex; gap:8px;">
             <input type="text" id="new-team" placeholder="e.g. Bedale">
-            <button type="button" class="secondary" id="add-team-btn" style="white-space:nowrap;">Add team</button>
+            <select id="new-team-division" style="max-width:150px;">
+              <option value="1">1st Division</option>
+              <option value="2">2nd Division</option>
+            </select>
+            <button type="button" class="secondary" id="add-team-btn" style="white-space:nowrap;">Add</button>
           </div>
         </div>
         <div></div>
@@ -86,6 +90,18 @@
       </div>
     </form>
   </div>
+
+  <section>
+    <h2>Teams &amp; divisions</h2>
+    <p class="lede" style="font-size:.85rem;">Only teams in Thornton Watlass's own division show up in the league
+      table &mdash; other-division teams stay listed here for cup fixtures.</p>
+    <div class="table-wrap">
+      <table class="scores" id="teams-table">
+        <thead><tr><th>Team</th><th>Division</th></tr></thead>
+        <tbody id="teams-body"></tbody>
+      </table>
+    </div>
+  </section>
 
   <section style="margin-top:40px;">
     <h2>Matches in this session</h2>
@@ -153,15 +169,38 @@ function gameRowTemplate(idx) {
 function refreshTeamSelects() {
   const home = document.getElementById('home-team');
   const away = document.getElementById('away-team');
+  const names = DATA.teams.map(t => t.name);
   [home, away].forEach(sel => {
     const current = sel.value;
-    sel.innerHTML = DATA.teams.map(t => `<option value="${t}">${t}</option>`).join('');
-    if (DATA.teams.includes(current)) sel.value = current;
+    sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
+    if (names.includes(current)) sel.value = current;
   });
   if (!away.value || away.value === home.value) {
-    const alt = DATA.teams.find(t => t !== home.value);
+    const alt = names.find(n => n !== home.value);
     if (alt) away.value = alt;
   }
+}
+
+function renderTeamsTable() {
+  const body = document.getElementById('teams-body');
+  body.innerHTML = '';
+  DATA.teams.forEach((t, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${t.name}</td>
+      <td style="max-width:160px;">
+        <select class="team-division-select" data-idx="${i}">
+          <option value="1" ${t.division === 1 ? 'selected' : ''}>1st Division</option>
+          <option value="2" ${t.division === 2 ? 'selected' : ''}>2nd Division</option>
+        </select>
+      </td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('.team-division-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      DATA.teams[Number(sel.dataset.idx)].division = Number(sel.value);
+    });
+  });
 }
 
 function renderMatchesTable() {
@@ -201,10 +240,11 @@ async function initAdmin() {
   try {
     DATA = await loadData();
   } catch (e) {
-    DATA = { season: new Date().getFullYear().toString(), homeTeam: 'Thornton Watlass', teams: ['Thornton Watlass'], matches: [] };
+    DATA = { season: new Date().getFullYear().toString(), homeTeam: 'Thornton Watlass', teams: [{ name: 'Thornton Watlass', division: 1 }], matches: [] };
     showMsg("Couldn't find an existing data.json &mdash; starting a fresh one.", false);
   }
   refreshTeamSelects();
+  renderTeamsTable();
   renderMatchesTable();
   document.getElementById('games-list').appendChild(gameRowTemplate(0));
   document.getElementById('date').valueAsDate = new Date();
@@ -213,10 +253,12 @@ async function initAdmin() {
 document.getElementById('add-team-btn').addEventListener('click', () => {
   const input = document.getElementById('new-team');
   const name = input.value.trim();
+  const division = Number(document.getElementById('new-team-division').value);
   if (!name) return;
-  if (!DATA.teams.includes(name)) DATA.teams.push(name);
+  if (!DATA.teams.some(t => t.name === name)) DATA.teams.push({ name, division });
   input.value = '';
   refreshTeamSelects();
+  renderTeamsTable();
   document.getElementById('away-team').value = name;
 });
 

@@ -29,7 +29,7 @@
   <div id="scoreboard-slot"></div>
 
   <section>
-    <h2>League table</h2>
+    <h2 id="league-heading">League table</h2>
     <p class="lede">Each team earns 1 league point per game they win, plus a 2-point bonus for whichever team scores more points in total across the match. Ranked by league points, then points difference.</p>
     <div class="table-wrap">
       <table class="scores" id="league-table">
@@ -89,6 +89,7 @@ async function renderPage() {
     document.getElementById('season-year').textContent = data.season;
 
     const table = computeLeagueTable(data);
+    document.getElementById('league-heading').textContent = `Division ${ourDivision(data)} table`;
     const body = document.getElementById('league-body');
     if (table.length === 0 || data.matches.length === 0) {
       document.getElementById('league-empty').style.display = 'block';

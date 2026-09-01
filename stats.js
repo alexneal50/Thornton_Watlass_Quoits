@@ -41,15 +41,36 @@ function matchResult(match) {
   return homeMatchPoints > awayMatchPoints ? 'home' : 'away';
 }
 
+/** Teams are stored as {name, division}. Supports plain-string entries too
+    (treated as division 1) so older data.json files don't break. */
+function teamNames(data) {
+  return data.teams.map(t => (typeof t === 'string' ? t : t.name));
+}
+function teamDivision(data, name) {
+  const t = data.teams.find(t => (typeof t === 'string' ? t : t.name) === name);
+  if (!t) return null;
+  return typeof t === 'string' ? 1 : t.division;
+}
+function ourDivision(data) {
+  return teamDivision(data, data.homeTeam) ?? 1;
+}
+
 function computeLeagueTable(data) {
+  const division = ourDivision(data);
+  const divisionTeams = teamNames(data).filter(name => teamDivision(data, name) === division);
+
   const table = {};
-  for (const t of data.teams) {
-    table[t] = { team: t, played: 0, won: 0, drawn: 0, lost: 0, ptsFor: 0, ptsAgainst: 0, leaguePoints: 0 };
+  for (const name of divisionTeams) {
+    table[name] = { team: name, played: 0, won: 0, drawn: 0, lost: 0, ptsFor: 0, ptsAgainst: 0, leaguePoints: 0 };
   }
-  const leagueMatches = data.matches.filter(m => (m.type || 'league') !== 'cup');
+  // Only matches between two teams in our own division count toward the table,
+  // even if mistagged as League — cross-division fixtures are cup matches.
+  const leagueMatches = data.matches.filter(m =>
+    (m.type || 'league') !== 'cup' &&
+    divisionTeams.includes(m.home) &&
+    divisionTeams.includes(m.away)
+  );
   for (const m of leagueMatches) {
-    if (!table[m.home]) table[m.home] = { team: m.home, played: 0, won: 0, drawn: 0, lost: 0, ptsFor: 0, ptsAgainst: 0, leaguePoints: 0 };
-    if (!table[m.away]) table[m.away] = { team: m.away, played: 0, won: 0, drawn: 0, lost: 0, ptsFor: 0, ptsAgainst: 0, leaguePoints: 0 };
     const { homePts, awayPts, homeMatchPoints, awayMatchPoints } = matchPoints(m);
     const result = matchResult(m);
     const home = table[m.home], away = table[m.away];
