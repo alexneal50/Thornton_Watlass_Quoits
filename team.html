@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thornton Watlass &mdash; Our Team</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="club" href="index.html"><span class="dot"></span>Thornton Watlass Quoits
+      <small>North Yorkshire Quoits League</small>
+    </a>
+    <div class="navblock">
+      <nav>
+        <a href="index.html">League</a>
+        <a href="team.html" class="active">Our Team</a>
+        <a href="admin.html">Enter Scores</a>
+      </nav>
+      <div class="user-chip" id="user-chip"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Thornton Watlass, season <span id="season-year"></span></h1>
+  <p class="lede">Every rink we've played this season, and how each pairing has fared.</p>
+
+  <div id="summary-slot"></div>
+
+  <div class="grid-2">
+    <section>
+      <h2>Match log</h2>
+      <div id="matches-slot"></div>
+    </section>
+
+    <section>
+      <h2>Player &amp; pairing stats</h2>
+      <p class="lede" style="font-size:.85rem;">Based on the names entered for each rink.</p>
+      <div class="table-wrap">
+        <table class="scores" id="player-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th class="num">Rinks</th>
+              <th class="num">W</th>
+              <th class="num">L</th>
+              <th class="num">Pts&nbsp;Diff</th>
+            </tr>
+          </thead>
+          <tbody id="player-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<footer class="wrap">
+  Thornton Watlass Quoits Club &middot; season <span id="season-year-2"></span>
+</footer>
+
+<script src="stats.js"></script>
+<script type="module">
+import { watchAuthStatus } from './auth.js';
+watchAuthStatus();
+</script>
+<script>
+async function renderPage() {
+  const HOME_TEAM = 'Thornton Watlass';
+  try {
+    const data = await loadData();
+    document.getElementById('season-year').textContent = data.season;
+    document.getElementById('season-year-2').textContent = data.season;
+
+    const { rows, summary } = computeTeamStats(data, HOME_TEAM);
+
+    document.getElementById('summary-slot').innerHTML = `
+      <div class="scoreboard">
+        <div>
+          <div class="pos">${summary.won}<span style="font-size:1.6rem;">-${summary.drawn}-${summary.lost}</span></div>
+          <div class="pos-label">Win &ndash; Draw &ndash; Loss</div>
+        </div>
+        <div class="split">
+          <div class="stat"><b>${summary.played}</b><span>Matches</span></div>
+          <div class="stat"><b>${summary.ptsFor}</b><span>Points For</span></div>
+          <div class="stat"><b>${summary.ptsAgainst}</b><span>Points Against</span></div>
+          <div class="stat"><b>${summary.ptsFor - summary.ptsAgainst > 0 ? '+' : ''}${summary.ptsFor - summary.ptsAgainst}</b><span>Difference</span></div>
+        </div>
+      </div>`;
+
+    const matchesSlot = document.getElementById('matches-slot');
+    if (rows.length === 0) {
+      matchesSlot.innerHTML = `<p class="empty">No matches recorded yet.</p>`;
+    } else {
+      rows.forEach(r => {
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.style.marginBottom = '14px';
+        const pillClass = r.outcome === 'win' ? 'win' : r.outcome === 'loss' ? 'loss' : 'draw';
+        const rinkRows = r.rinks.map(rk => {
+          const hi = r.isHome;
+          const ourP = hi ? rk.homePlayers : rk.awayPlayers;
+          const theirP = hi ? rk.awayPlayers : rk.homePlayers;
+          const ourS = hi ? rk.homeScore : rk.awayScore;
+          const theirS = hi ? rk.awayScore : rk.homeScore;
+          return `<tr><td>${ourP}</td><td class="num">${ourS}&ndash;${theirS}</td><td>${theirP}</td></tr>`;
+        }).join('');
+        el.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
+            <h3 style="margin:0;">vs ${r.opponent} <span style="font-weight:400; color:var(--ink-soft); font-size:.85rem;">(${r.isHome ? 'Home' : 'Away'})</span></h3>
+            <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamRinks}&ndash;${r.oppRinks} rinks</span>
+          </div>
+          <p style="color:var(--ink-soft); font-size:.85rem; margin:2px 0 10px;">${formatDate(r.date)} &middot; ${r.teamPts}&ndash;${r.oppPts} points</p>
+          <table class="scores"><tbody>${rinkRows}</tbody></table>`;
+        matchesSlot.appendChild(el);
+      });
+    }
+
+    const players = computePlayerStats(data, HOME_TEAM);
+    const pbody = document.getElementById('player-body');
+    if (players.length === 0) {
+      pbody.innerHTML = `<tr><td colspan="5" class="empty">No player data yet.</td></tr>`;
+    }
+    players.forEach(p => {
+      const tr = document.createElement('tr');
+      const diff = p.pointsFor - p.pointsAgainst;
+      tr.innerHTML = `
+        <td>${p.name}</td>
+        <td class="num">${p.rinksPlayed}</td>
+        <td class="num">${p.rinksWon}</td>
+        <td class="num">${p.rinksLost}</td>
+        <td class="num">${diff > 0 ? '+' : ''}${diff}</td>`;
+      pbody.appendChild(tr);
+    });
+  } catch (e) {
+    document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;
+  }
+
+  function formatDate(d) {
+    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+}
+renderPage();
+</script>
+</body>
+</html>

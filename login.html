@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in &mdash; Thornton Watlass Quoits</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="auth-brand">
+    <span class="dot"></span>
+    <h1 style="font-size:1.3rem;">Thornton Watlass Quoits</h1>
+    <p class="lede" style="margin:0 auto;">North Yorkshire Quoits League</p>
+  </div>
+
+  <div class="auth-card">
+    <div id="msg-slot"></div>
+
+    <!-- SIGN IN -->
+    <form id="signin-form">
+      <h2 id="form-title">Sign in</h2>
+      <label for="si-email">Email</label>
+      <input type="email" id="si-email" required autocomplete="email">
+      <label for="si-password">Password</label>
+      <input type="password" id="si-password" required autocomplete="current-password">
+      <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+        <button type="submit" style="width:100%;">Sign in</button>
+      </div>
+      <div class="auth-toggle">
+        <button type="button" class="link" id="show-reset">Forgot password?</button>
+        <button type="button" class="link" id="show-signup">Create account</button>
+      </div>
+    </form>
+
+    <!-- CREATE ACCOUNT -->
+    <form id="signup-form" style="display:none;">
+      <h2>Create account</h2>
+      <p class="lede" style="font-size:.85rem;">For Thornton Watlass players and league contacts.</p>
+      <label for="su-email">Email</label>
+      <input type="email" id="su-email" required autocomplete="email">
+      <label for="su-password">Password</label>
+      <input type="password" id="su-password" required minlength="6" autocomplete="new-password">
+      <p class="lede" style="font-size:.78rem; margin-top:4px;">At least 6 characters.</p>
+      <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+        <button type="submit" style="width:100%;">Create account</button>
+      </div>
+      <div class="auth-toggle">
+        <button type="button" class="link" id="show-signin-from-signup">Already have an account? Sign in</button>
+      </div>
+    </form>
+
+    <!-- FORGOT PASSWORD -->
+    <form id="reset-form" style="display:none;">
+      <h2>Reset password</h2>
+      <p class="lede" style="font-size:.85rem;">We'll email a reset link to your registered address.</p>
+      <label for="rs-email">Email</label>
+      <input type="email" id="rs-email" required autocomplete="email">
+      <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+        <button type="submit" style="width:100%;">Send reset email</button>
+      </div>
+      <div class="auth-toggle">
+        <button type="button" class="link" id="show-signin-from-reset">Back to sign in</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+import { auth } from './auth.js';
+import {
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  sendPasswordResetEmail, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+const params = new URLSearchParams(location.search);
+const next = params.get('next') || 'index.html';
+
+// If already signed in, skip straight through.
+onAuthStateChanged(auth, (user) => {
+  if (user) window.location.href = next;
+});
+
+const forms = {
+  signin: document.getElementById('signin-form'),
+  signup: document.getElementById('signup-form'),
+  reset: document.getElementById('reset-form')
+};
+function showForm(name) {
+  Object.values(forms).forEach(f => f.style.display = 'none');
+  forms[name].style.display = 'block';
+  document.getElementById('msg-slot').innerHTML = '';
+}
+document.getElementById('show-signup').addEventListener('click', () => showForm('signup'));
+document.getElementById('show-reset').addEventListener('click', () => showForm('reset'));
+document.getElementById('show-signin-from-signup').addEventListener('click', () => showForm('signin'));
+document.getElementById('show-signin-from-reset').addEventListener('click', () => showForm('signin'));
+
+function showMsg(text, ok) {
+  document.getElementById('msg-slot').innerHTML = `<p class="msg ${ok ? 'ok' : 'err'}">${text}</p>`;
+}
+function friendlyError(err) {
+  const map = {
+    'auth/invalid-email': 'That email address doesn\u2019t look right.',
+    'auth/user-not-found': 'No account with that email. Try creating one instead.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/invalid-credential': 'Email or password is incorrect.',
+    'auth/email-already-in-use': 'An account already exists for that email \u2014 try signing in.',
+    'auth/weak-password': 'Please choose a password with at least 6 characters.',
+    'auth/configuration-not-found': 'Email/password sign-in isn\u2019t enabled yet in the Firebase project \u2014 see the README.'
+  };
+  return map[err.code] || err.message;
+}
+
+forms.signin.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    await signInWithEmailAndPassword(auth, document.getElementById('si-email').value.trim(), document.getElementById('si-password').value);
+    window.location.href = next;
+  } catch (err) { showMsg(friendlyError(err), false); }
+});
+
+forms.signup.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    await createUserWithEmailAndPassword(auth, document.getElementById('su-email').value.trim(), document.getElementById('su-password').value);
+    window.location.href = next;
+  } catch (err) { showMsg(friendlyError(err), false); }
+});
+
+forms.reset.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    await sendPasswordResetEmail(auth, document.getElementById('rs-email').value.trim());
+    showMsg('Reset email sent \u2014 check your inbox for a link to set a new password.', true);
+  } catch (err) { showMsg(friendlyError(err), false); }
+});
+</script>
+</body>
+</html>

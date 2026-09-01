@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enter Scores &mdash; Thornton Watlass Quoits</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="club" href="index.html"><span class="dot"></span>Thornton Watlass Quoits
+      <small>North Yorkshire Quoits League</small>
+    </a>
+    <div class="navblock">
+      <nav>
+        <a href="index.html">League</a>
+        <a href="team.html">Our Team</a>
+        <a href="admin.html" class="active">Enter Scores</a>
+      </nav>
+      <div class="user-chip" id="user-chip"></div>
+    </div>
+  </div>
+</header>
+
+<div id="auth-loading" class="auth-loading">Checking sign-in&hellip;</div>
+
+<main class="wrap auth-protected" style="display:none;">
+  <h1>Enter a match</h1>
+  <p class="lede">This page works entirely in your browser &mdash; nothing is saved online automatically. When you're
+    done, click <strong>Download updated data.json</strong> and replace the file in the website's files (see
+    "Publishing your changes" below).</p>
+
+  <div id="load-msg"></div>
+
+  <div class="card">
+    <form id="match-form">
+      <div class="grid-2">
+        <div>
+          <label for="date">Date</label>
+          <input type="date" id="date" required>
+        </div>
+        <div>
+          <label for="new-team">Playing a team not listed yet? Add it</label>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="new-team" placeholder="e.g. Bedale">
+            <button type="button" class="secondary" id="add-team-btn" style="white-space:nowrap;">Add team</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label for="home-team">Home team</label>
+          <select id="home-team"></select>
+        </div>
+        <div>
+          <label for="away-team">Away team</label>
+          <select id="away-team"></select>
+        </div>
+      </div>
+
+      <h3 style="margin-top:26px;">Rinks</h3>
+      <p class="lede" style="font-size:.85rem;">One row per pair playing to 21. Add as many rinks as your match had.</p>
+      <div id="rinks-list"></div>
+      <button type="button" class="ghost" id="add-rink-btn">+ Add rink</button>
+
+      <div style="margin-top:22px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button type="submit">Save match to this page</button>
+        <button type="button" class="secondary" id="download-btn">Download updated data.json</button>
+      </div>
+    </form>
+  </div>
+
+  <section style="margin-top:40px;">
+    <h2>Matches in this session</h2>
+    <p class="lede" style="font-size:.85rem;">Includes matches already in data.json, plus anything you've added above.</p>
+    <div class="table-wrap">
+      <table class="scores" id="matches-table">
+        <thead>
+          <tr><th>Date</th><th>Home</th><th>Away</th><th class="num">Rinks</th><th></th></tr>
+        </thead>
+        <tbody id="matches-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" style="background:var(--parchment-2); border:none;">
+    <h2>Publishing your changes</h2>
+    <ol style="padding-left:20px; color:var(--ink-soft);">
+      <li>Click <strong>Download updated data.json</strong> above.</li>
+      <li>Go to your website's repository on GitHub.com and open the existing <code>data.json</code> file.</li>
+      <li>Click the pencil (edit) icon, delete the contents, and paste in the downloaded file's contents &mdash; or use "Upload files" and drag the new <code>data.json</code> in to replace it.</li>
+      <li>Click <strong>Commit changes</strong>. The live site updates automatically within a minute or two.</li>
+    </ol>
+    <p style="color:var(--ink-soft); font-size:.85rem;">See the README in the project files for full GitHub Pages setup steps.</p>
+  </section>
+
+</main>
+
+<script src="stats.js"></script>
+<script type="module">
+import { guardPage, wireUserChip, revealPage } from './auth.js';
+guardPage().then((user) => {
+  wireUserChip(user);
+  revealPage();
+  initAdmin();
+});
+</script>
+<script>
+let DATA = null;
+
+function rinkRowTemplate(idx) {
+  const div = document.createElement('div');
+  div.className = 'rink-row';
+  div.dataset.idx = idx;
+  div.innerHTML = `
+    <div><label>Home pair</label><input type="text" class="r-home-players" placeholder="e.g. J. Metcalfe & S. Peacock"></div>
+    <div style="width:80px;"><label>Score</label><input type="number" class="r-home-score" min="0" max="21" required></div>
+    <div><label>Away pair</label><input type="text" class="r-away-players" placeholder="e.g. T. Wray & D. Iveson"></div>
+    <div style="width:80px;"><label>Score</label><input type="number" class="r-away-score" min="0" max="21" required></div>`;
+  return div;
+}
+
+function refreshTeamSelects() {
+  const home = document.getElementById('home-team');
+  const away = document.getElementById('away-team');
+  [home, away].forEach(sel => {
+    const current = sel.value;
+    sel.innerHTML = DATA.teams.map(t => `<option value="${t}">${t}</option>`).join('');
+    if (DATA.teams.includes(current)) sel.value = current;
+  });
+  if (!away.value || away.value === home.value) {
+    const alt = DATA.teams.find(t => t !== home.value);
+    if (alt) away.value = alt;
+  }
+}
+
+function renderMatchesTable() {
+  const body = document.getElementById('matches-body');
+  body.innerHTML = '';
+  const sorted = [...DATA.matches].sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (sorted.length === 0) {
+    body.innerHTML = `<tr><td colspan="5" class="empty">No matches yet.</td></tr>`;
+    return;
+  }
+  sorted.forEach(m => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${m.date}</td><td>${m.home}</td><td>${m.away}</td>
+      <td class="num">${m.rinks.length}</td>
+      <td><button type="button" class="ghost remove-match" data-id="${m.id}">Remove</button></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('.remove-match').forEach(btn => {
+    btn.addEventListener('click', () => {
+      DATA.matches = DATA.matches.filter(m => m.id !== btn.dataset.id);
+      renderMatchesTable();
+    });
+  });
+}
+
+function showMsg(text, ok) {
+  const slot = document.getElementById('load-msg');
+  slot.innerHTML = `<p class="msg ${ok ? 'ok' : 'err'}">${text}</p>`;
+  if (ok) setTimeout(() => { slot.innerHTML = ''; }, 3500);
+}
+
+async function initAdmin() {
+  try {
+    DATA = await loadData();
+  } catch (e) {
+    DATA = { season: new Date().getFullYear().toString(), homeTeam: 'Thornton Watlass', pointsForWin: 2, pointsForDraw: 1, pointsForLoss: 0, teams: ['Thornton Watlass'], matches: [] };
+    showMsg("Couldn't find an existing data.json &mdash; starting a fresh one.", false);
+  }
+  refreshTeamSelects();
+  renderMatchesTable();
+  document.getElementById('rinks-list').appendChild(rinkRowTemplate(0));
+  document.getElementById('date').valueAsDate = new Date();
+}
+
+document.getElementById('add-team-btn').addEventListener('click', () => {
+  const input = document.getElementById('new-team');
+  const name = input.value.trim();
+  if (!name) return;
+  if (!DATA.teams.includes(name)) DATA.teams.push(name);
+  input.value = '';
+  refreshTeamSelects();
+  document.getElementById('away-team').value = name;
+});
+
+document.getElementById('add-rink-btn').addEventListener('click', () => {
+  const list = document.getElementById('rinks-list');
+  list.appendChild(rinkRowTemplate(list.children.length));
+});
+
+document.getElementById('match-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const home = document.getElementById('home-team').value;
+  const away = document.getElementById('away-team').value;
+  if (home === away) { showMsg('Home and away teams must be different.', false); return; }
+
+  const rinkRows = [...document.querySelectorAll('.rink-row')];
+  const rinks = rinkRows.map(row => ({
+    homePlayers: row.querySelector('.r-home-players').value.trim(),
+    awayPlayers: row.querySelector('.r-away-players').value.trim(),
+    homeScore: Number(row.querySelector('.r-home-score').value),
+    awayScore: Number(row.querySelector('.r-away-score').value)
+  })).filter(r => !isNaN(r.homeScore) && !isNaN(r.awayScore));
+
+  if (rinks.length === 0) { showMsg('Add at least one rink with scores.', false); return; }
+
+  const match = {
+    id: 'm-' + Date.now(),
+    date: document.getElementById('date').value,
+    home, away, rinks
+  };
+  DATA.matches.push(match);
+  renderMatchesTable();
+  showMsg('Match saved to this page. Remember to download the updated data.json to publish it.', true);
+
+  // reset rinks + date, keep teams for quick multi-entry
+  document.getElementById('rinks-list').innerHTML = '';
+  document.getElementById('rinks-list').appendChild(rinkRowTemplate(0));
+});
+
+document.getElementById('download-btn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'data.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>

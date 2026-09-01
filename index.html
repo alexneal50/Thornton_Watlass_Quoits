@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thornton Watlass Quoits &mdash; League</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="club" href="index.html"><span class="dot"></span>Thornton Watlass Quoits
+      <small>North Yorkshire Quoits League</small>
+    </a>
+    <div class="navblock">
+      <nav>
+        <a href="index.html" class="active">League</a>
+        <a href="team.html">Our Team</a>
+        <a href="admin.html">Enter Scores</a>
+      </nav>
+      <div class="user-chip" id="user-chip"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div id="scoreboard-slot"></div>
+
+  <section>
+    <h2>League table</h2>
+    <p class="lede">Ranked by league points (2 for a win, 1 for a draw), then points difference.</p>
+    <div class="table-wrap">
+      <table class="scores" id="league-table">
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th class="num">P</th>
+            <th class="num">W</th>
+            <th class="num">D</th>
+            <th class="num">L</th>
+            <th class="num">Pts&nbsp;For</th>
+            <th class="num">Pts&nbsp;Agst</th>
+            <th class="num">Diff</th>
+            <th class="num">Pts</th>
+          </tr>
+        </thead>
+        <tbody id="league-body"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="league-empty" style="display:none;">No matches recorded yet &mdash; head to <a href="admin.html">Enter Scores</a> to add the first one.</p>
+  </section>
+
+  <section>
+    <h2>Recent results</h2>
+    <div class="table-wrap">
+      <table class="scores" id="recent-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Home</th>
+            <th class="num">Score</th>
+            <th>Away</th>
+          </tr>
+        </thead>
+        <tbody id="recent-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  Thornton Watlass Quoits Club &middot; season <span id="season-year"></span>
+</footer>
+
+<script src="stats.js"></script>
+<script type="module">
+import { watchAuthStatus } from './auth.js';
+watchAuthStatus();
+</script>
+<script>
+async function renderPage() {
+  const HOME_TEAM = 'Thornton Watlass';
+  try {
+    const data = await loadData();
+    document.getElementById('season-year').textContent = data.season;
+
+    const table = computeLeagueTable(data);
+    const body = document.getElementById('league-body');
+    if (table.length === 0 || data.matches.length === 0) {
+      document.getElementById('league-empty').style.display = 'block';
+    }
+    table.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      if (row.team === HOME_TEAM) tr.className = 'highlight';
+      const diff = row.ptsFor - row.ptsAgainst;
+      tr.innerHTML = `
+        <td>${i + 1}. ${row.team}</td>
+        <td class="num">${row.played}</td>
+        <td class="num">${row.won}</td>
+        <td class="num">${row.drawn}</td>
+        <td class="num">${row.lost}</td>
+        <td class="num">${row.ptsFor}</td>
+        <td class="num">${row.ptsAgainst}</td>
+        <td class="num">${diff > 0 ? '+' : ''}${diff}</td>
+        <td class="num"><strong>${row.leaguePoints}</strong></td>`;
+      body.appendChild(tr);
+    });
+
+    // Scoreboard hero: Thornton Watlass position
+    const posIndex = table.findIndex(r => r.team === HOME_TEAM);
+    const us = table[posIndex];
+    const slot = document.getElementById('scoreboard-slot');
+    if (us) {
+      slot.innerHTML = `
+        <div class="scoreboard">
+          <div>
+            <div class="pos">${posIndex + 1}<span style="font-size:1.6rem;">${ordinalSuffix(posIndex + 1)}</span></div>
+            <div class="pos-label">Thornton Watlass, of ${table.length} teams</div>
+          </div>
+          <div class="split">
+            <div class="stat"><b>${us.played}</b><span>Played</span></div>
+            <div class="stat"><b>${us.won}-${us.drawn}-${us.lost}</b><span>W&ndash;D&ndash;L</span></div>
+            <div class="stat"><b>${us.leaguePoints}</b><span>League Pts</span></div>
+            <div class="stat"><b>${us.ptsFor - us.ptsAgainst > 0 ? '+' : ''}${us.ptsFor - us.ptsAgainst}</b><span>Points Diff</span></div>
+          </div>
+        </div>`;
+    } else {
+      slot.innerHTML = `<p class="empty">Add Thornton Watlass matches to see the season scoreboard here.</p>`;
+    }
+
+    // Recent results
+    const recentBody = document.getElementById('recent-body');
+    const recent = [...data.matches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
+    if (recent.length === 0) {
+      recentBody.innerHTML = `<tr><td colspan="4" class="empty">No results yet.</td></tr>`;
+    }
+    recent.forEach(m => {
+      const t = matchRinkTally(m);
+      const tr = document.createElement('tr');
+      if (m.home === HOME_TEAM || m.away === HOME_TEAM) tr.className = 'highlight';
+      tr.innerHTML = `
+        <td>${formatDate(m.date)}</td>
+        <td>${m.home}</td>
+        <td class="num">${t.homeRinks}&ndash;${t.awayRinks} <span style="color:var(--ink-soft); font-weight:400;">(${t.homePts}&ndash;${t.awayPts})</span></td>
+        <td>${m.away}</td>`;
+      recentBody.appendChild(tr);
+    });
+  } catch (e) {
+    document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;
+  }
+
+  function ordinalSuffix(n) {
+    const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+  }
+  function formatDate(d) {
+    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+}
+renderPage();
+</script>
+</body>
+</html>
