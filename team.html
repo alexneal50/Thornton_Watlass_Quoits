@@ -114,10 +114,10 @@ async function renderPage() {
             <h3 style="margin:0;">vs ${r.opponent} <span style="font-weight:400; color:var(--ink-soft); font-size:.85rem;">(${r.isHome ? 'Home' : 'Away'})</span></h3>
             <div style="display:flex; gap:6px;">
               <span class="pill ${r.type === 'cup' ? 'draw' : 'win'}">${r.type === 'cup' ? 'CUP' : 'LEAGUE'}</span>
-              <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamGames}&ndash;${r.oppGames} games</span>
+              <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamMatchPoints}&ndash;${r.oppMatchPoints}</span>
             </div>
           </div>
-          <p style="color:var(--ink-soft); font-size:.85rem; margin:2px 0 10px;">${formatDate(r.date)} &middot; ${r.teamPts}&ndash;${r.oppPts} points</p>
+          <p style="color:var(--ink-soft); font-size:.85rem; margin:2px 0 10px;">${formatDate(r.date)} &middot; ${r.teamGames}&ndash;${r.oppGames} games &middot; ${r.teamPts}&ndash;${r.oppPts} points</p>
           <table class="scores"><tbody>${gameRows}</tbody></table>`;
         matchesSlot.appendChild(el);
       });

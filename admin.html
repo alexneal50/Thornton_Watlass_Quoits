@@ -201,7 +201,7 @@ async function initAdmin() {
   try {
     DATA = await loadData();
   } catch (e) {
-    DATA = { season: new Date().getFullYear().toString(), homeTeam: 'Thornton Watlass', pointsForWin: 2, pointsForDraw: 1, pointsForLoss: 0, teams: ['Thornton Watlass'], matches: [] };
+    DATA = { season: new Date().getFullYear().toString(), homeTeam: 'Thornton Watlass', teams: ['Thornton Watlass'], matches: [] };
     showMsg("Couldn't find an existing data.json &mdash; starting a fresh one.", false);
   }
   refreshTeamSelects();

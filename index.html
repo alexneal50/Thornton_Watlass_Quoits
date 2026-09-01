@@ -30,7 +30,7 @@
 
   <section>
     <h2>League table</h2>
-    <p class="lede">Ranked by league points (2 for a win, 1 for a draw), then points difference.</p>
+    <p class="lede">Each team earns 1 league point per game they win, plus a 2-point bonus for whichever team scores more points in total across the match. Ranked by league points, then points difference.</p>
     <div class="table-wrap">
       <table class="scores" id="league-table">
         <thead>
@@ -139,7 +139,7 @@ async function renderPage() {
       recentBody.innerHTML = `<tr><td colspan="5" class="empty">No results yet.</td></tr>`;
     }
     recent.forEach(m => {
-      const t = matchGameTally(m);
+      const t = matchPoints(m);
       const type = m.type || 'league';
       const tr = document.createElement('tr');
       if (m.home === HOME_TEAM || m.away === HOME_TEAM) tr.className = 'highlight';
@@ -147,7 +147,7 @@ async function renderPage() {
         <td>${formatDate(m.date)}</td>
         <td><span class="pill ${type === 'cup' ? 'draw' : 'win'}" style="font-size:.62rem;">${type === 'cup' ? 'CUP' : 'LGE'}</span></td>
         <td>${m.home}</td>
-        <td class="num">${t.homeWins}&ndash;${t.awayWins} <span style="color:var(--ink-soft); font-weight:400;">(${t.homePts}&ndash;${t.awayPts})</span></td>
+        <td class="num">${t.homeMatchPoints}&ndash;${t.awayMatchPoints} <span style="color:var(--ink-soft); font-weight:400;">(${t.homeWins}&ndash;${t.awayWins} games, ${t.homePts}&ndash;${t.awayPts} pts)</span></td>
         <td>${m.away}</td>`;
       recentBody.appendChild(tr);
     });

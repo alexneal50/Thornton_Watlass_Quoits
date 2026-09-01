@@ -92,16 +92,30 @@ League). The difference:
   tagged with a small CUP badge, so nothing's hidden &mdash; they just don't
   feed into the league numbers.
 
+## How league points work
+
+Each team earns **1 league point for every game they win** in a match, plus
+a **2-point bonus** for whichever team scores more points in total across
+the whole match. If the total points are level, neither side gets the
+bonus.
+
+For example: Team A wins 4 individual games, Team B wins 3 &mdash; but Team
+B's players scored more points in total across the match. Team A gets 4
+league points (4 games, no bonus). Team B gets 3 + 2 = 5 league points. The
+match is recorded as a 4&ndash;5 win for Team B, even though Team A won more
+individual games.
+
+The league table ranks teams by total league points across the season,
+then by points difference.
+
 ## Adjusting things later
 
-- **League points system**: edit `pointsForWin` / `pointsForDraw` /
-  `pointsForLoss` at the top of `data.json` (defaults to 2/1/0).
 - **Season name**: edit the `season` field in `data.json`.
 - **Team names**: add teams via the admin page, or edit the `teams` array
   in `data.json` directly.
 - If your actual scoring format is different from "singles games to 21,
-  most games won decides the match", let me know and I can adjust the
-  scoring logic in `stats.js`.
+  1 league point per game won plus a 2-point bonus for the higher points
+  total", let me know and I can adjust the scoring logic in `stats.js`.
 
 ## Notes
 
