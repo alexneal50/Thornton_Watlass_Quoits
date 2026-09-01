@@ -42,12 +42,23 @@
           <input type="date" id="date" required>
         </div>
         <div>
+          <label for="match-type">Match type</label>
+          <select id="match-type">
+            <option value="league">League</option>
+            <option value="cup">Cup</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
           <label for="new-team">Playing a team not listed yet? Add it</label>
           <div style="display:flex; gap:8px;">
             <input type="text" id="new-team" placeholder="e.g. Bedale">
             <button type="button" class="secondary" id="add-team-btn" style="white-space:nowrap;">Add team</button>
           </div>
         </div>
+        <div></div>
       </div>
 
       <div class="grid-2">
@@ -60,6 +71,8 @@
           <select id="away-team"></select>
         </div>
       </div>
+
+      <p class="lede" style="font-size:.8rem; margin-top:-8px;">Cup games count toward player stats but are left out of the league table and season summary.</p>
 
       <h3 style="margin-top:26px;">Games</h3>
       <p class="lede" style="font-size:.85rem;">One row per singles game, playing to 21. Enter each player's points
@@ -80,7 +93,7 @@
     <div class="table-wrap">
       <table class="scores" id="matches-table">
         <thead>
-          <tr><th>Date</th><th>Home</th><th>Away</th><th class="num">Games</th><th></th></tr>
+          <tr><th>Date</th><th>Type</th><th>Home</th><th>Away</th><th class="num">Games</th><th></th></tr>
         </thead>
         <tbody id="matches-body"></tbody>
       </table>
@@ -156,13 +169,16 @@ function renderMatchesTable() {
   body.innerHTML = '';
   const sorted = [...DATA.matches].sort((a, b) => new Date(b.date) - new Date(a.date));
   if (sorted.length === 0) {
-    body.innerHTML = `<tr><td colspan="5" class="empty">No matches yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="6" class="empty">No matches yet.</td></tr>`;
     return;
   }
   sorted.forEach(m => {
     const tr = document.createElement('tr');
+    const type = m.type || 'league';
     tr.innerHTML = `
-      <td>${m.date}</td><td>${m.home}</td><td>${m.away}</td>
+      <td>${m.date}</td>
+      <td><span class="pill ${type === 'cup' ? 'draw' : 'win'}">${type === 'cup' ? 'Cup' : 'League'}</span></td>
+      <td>${m.home}</td><td>${m.away}</td>
       <td class="num">${m.games.length}</td>
       <td><button type="button" class="ghost remove-match" data-id="${m.id}">Remove</button></td>`;
     body.appendChild(tr);
@@ -237,6 +253,7 @@ document.getElementById('match-form').addEventListener('submit', (e) => {
   const match = {
     id: 'm-' + Date.now(),
     date: document.getElementById('date').value,
+    type: document.getElementById('match-type').value,
     home, away, games
   };
   DATA.matches.push(match);

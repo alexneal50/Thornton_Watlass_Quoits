@@ -35,7 +35,8 @@ function computeLeagueTable(data) {
   for (const t of data.teams) {
     table[t] = { team: t, played: 0, won: 0, drawn: 0, lost: 0, ptsFor: 0, ptsAgainst: 0, leaguePoints: 0 };
   }
-  for (const m of data.matches) {
+  const leagueMatches = data.matches.filter(m => (m.type || 'league') !== 'cup');
+  for (const m of leagueMatches) {
     if (!table[m.home]) table[m.home] = { team: m.home, played: 0, won: 0, drawn: 0, lost: 0, ptsFor: 0, ptsAgainst: 0, leaguePoints: 0 };
     if (!table[m.away]) table[m.away] = { team: m.away, played: 0, won: 0, drawn: 0, lost: 0, ptsFor: 0, ptsAgainst: 0, leaguePoints: 0 };
     const { homePts, awayPts } = matchGameTally(m);
@@ -69,6 +70,7 @@ function computeTeamStats(data, teamName) {
     const outcome = result === 'draw' ? 'draw' : won ? 'win' : 'loss';
     return {
       id: m.id, date: m.date, opponent, isHome, outcome,
+      type: m.type || 'league',
       teamGames: isHome ? homeWins : awayWins,
       oppGames: isHome ? awayWins : homeWins,
       teamPts: isHome ? homePts : awayPts,
@@ -77,7 +79,8 @@ function computeTeamStats(data, teamName) {
     };
   });
 
-  const summary = rows.reduce((s, r) => {
+  // Cup games show up in the match log but don't count toward the season's league summary.
+  const summary = rows.filter(r => r.type !== 'cup').reduce((s, r) => {
     s.played++;
     if (r.outcome === 'win') s.won++; else if (r.outcome === 'loss') s.lost++; else s.drawn++;
     s.ptsFor += r.teamPts; s.ptsAgainst += r.oppPts;

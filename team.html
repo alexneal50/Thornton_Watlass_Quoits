@@ -26,7 +26,7 @@
 
 <main class="wrap">
   <h1>Thornton Watlass, season <span id="season-year"></span></h1>
-  <p class="lede">Every game we've played this season, and how each player has fared.</p>
+  <p class="lede">Every game we've played this season, and how each player has fared. Player stats include cup games; the season summary below is league games only.</p>
 
   <div id="summary-slot"></div>
 
@@ -112,7 +112,10 @@ async function renderPage() {
         el.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
             <h3 style="margin:0;">vs ${r.opponent} <span style="font-weight:400; color:var(--ink-soft); font-size:.85rem;">(${r.isHome ? 'Home' : 'Away'})</span></h3>
-            <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamGames}&ndash;${r.oppGames} games</span>
+            <div style="display:flex; gap:6px;">
+              <span class="pill ${r.type === 'cup' ? 'draw' : 'win'}">${r.type === 'cup' ? 'CUP' : 'LEAGUE'}</span>
+              <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamGames}&ndash;${r.oppGames} games</span>
+            </div>
           </div>
           <p style="color:var(--ink-soft); font-size:.85rem; margin:2px 0 10px;">${formatDate(r.date)} &middot; ${r.teamPts}&ndash;${r.oppPts} points</p>
           <table class="scores"><tbody>${gameRows}</tbody></table>`;

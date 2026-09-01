@@ -79,6 +79,19 @@ to `login.html` if you're not.
 Only one person needs to do steps 3&ndash;4 after a match &mdash; everyone
 else just visits the site to look.
 
+## League vs cup games
+
+Every match is tagged **League** or **Cup** when you enter it (defaults to
+League). The difference:
+
+- **Player stats** on the Our Team page include both League and Cup games.
+- **The league table** and the **season summary** (W&ndash;D&ndash;L, points
+  for/against) on the Our Team page only count League games &mdash; cup
+  results don't affect your league position.
+- Cup matches still show up in the match log and in "Recent results", each
+  tagged with a small CUP badge, so nothing's hidden &mdash; they just don't
+  feed into the league numbers.
+
 ## Adjusting things later
 
 - **League points system**: edit `pointsForWin` / `pointsForDraw` /

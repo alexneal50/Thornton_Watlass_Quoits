@@ -14,6 +14,7 @@
     {
       "id": "sample-1",
       "date": "2026-05-08",
+      "type": "league",
       "home": "Thornton Watlass",
       "away": "Well",
       "games": [
