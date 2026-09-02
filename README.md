@@ -79,18 +79,26 @@ to `login.html` if you're not.
 Only one person needs to do steps 3&ndash;4 after a match &mdash; everyone
 else just visits the site to look.
 
-## League vs cup games
+## League vs cup vs Captains Cup
 
-Every match is tagged **League** or **Cup** when you enter it (defaults to
-League). The difference:
+Every match is tagged when you enter it (defaults to League):
 
-- **Player stats** on the Our Team page include both League and Cup games.
-- **The league table** and the **season summary** (W&ndash;D&ndash;L, points
-  for/against) on the Our Team page only count League games &mdash; cup
-  results don't affect your league position.
-- Cup matches still show up in the match log and in "Recent results", each
-  tagged with a small CUP badge, so nothing's hidden &mdash; they just don't
-  feed into the league numbers.
+- **League**: counts everywhere &mdash; player stats, the league table, and
+  the season summary.
+- **Cup**: counts toward player stats and shows in the match log, but not
+  the league table or season summary.
+- **Captains Cup**: a single-game fixture (the form only asks for one game
+  when this is selected). Counts toward player stats only &mdash; not the
+  league table or season summary.
+
+Cup and Captains Cup matches still show up in the match log and "Recent
+results", each with a badge, so nothing's hidden &mdash; they just don't
+feed into the league numbers.
+
+Player stats on the Our Team page are shown in three tables: **All games**
+(everything, including Captains Cup), **League**, and **Cup**. Captains Cup
+games only appear in the All games table, since they're their own thing
+separate from the regular Cup competition.
 
 ## How league points work
 

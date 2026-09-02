@@ -30,32 +30,44 @@
 
   <div id="summary-slot"></div>
 
-  <div class="grid-2">
-    <section>
-      <h2>Match log</h2>
-      <div id="matches-slot"></div>
-    </section>
+  <section>
+    <h2>Match log</h2>
+    <div id="matches-slot"></div>
+  </section>
 
-    <section>
-      <h2>Player stats</h2>
-      <p class="lede" style="font-size:.85rem;">Based on the scores and ringers entered for each game.</p>
-      <div class="table-wrap">
-        <table class="scores" id="player-table">
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th class="num">Won</th>
-              <th class="num">Lost</th>
-              <th class="num">Pts&nbsp;For</th>
-              <th class="num">Pts&nbsp;Agst</th>
-              <th class="num">Ringers</th>
-            </tr>
-          </thead>
-          <tbody id="player-body"></tbody>
-        </table>
+  <section>
+    <h2>Player stats</h2>
+    <p class="lede" style="font-size:.85rem;">Based on the scores and ringers entered for each game.</p>
+    <div class="grid-3">
+      <div>
+        <h3>All games</h3>
+        <div class="table-wrap">
+          <table class="scores" id="player-table-all">
+            <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+            <tbody id="player-body-all"></tbody>
+          </table>
+        </div>
       </div>
-    </section>
-  </div>
+      <div>
+        <h3>League</h3>
+        <div class="table-wrap">
+          <table class="scores" id="player-table-league">
+            <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+            <tbody id="player-body-league"></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h3>Cup</h3>
+        <div class="table-wrap">
+          <table class="scores" id="player-table-cup">
+            <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+            <tbody id="player-body-cup"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
 
 </main>
 
@@ -113,7 +125,7 @@ async function renderPage() {
           <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
             <h3 style="margin:0;">vs ${r.opponent} <span style="font-weight:400; color:var(--ink-soft); font-size:.85rem;">(${r.isHome ? 'Home' : 'Away'})</span></h3>
             <div style="display:flex; gap:6px;">
-              <span class="pill ${r.type === 'cup' ? 'draw' : 'win'}">${r.type === 'cup' ? 'CUP' : 'LEAGUE'}</span>
+              <span class="pill ${matchTypePillClass(r.type)}">${matchTypeLabel(r.type).toUpperCase()}</span>
               <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamMatchPoints}&ndash;${r.oppMatchPoints}</span>
             </div>
           </div>
@@ -123,22 +135,25 @@ async function renderPage() {
       });
     }
 
-    const players = computePlayerStats(data, HOME_TEAM);
-    const pbody = document.getElementById('player-body');
-    if (players.length === 0) {
-      pbody.innerHTML = `<tr><td colspan="6" class="empty">No player data yet.</td></tr>`;
+    function fillPlayerTable(bodyId, players) {
+      const body = document.getElementById(bodyId);
+      if (players.length === 0) {
+        body.innerHTML = `<tr><td colspan="6" class="empty">No data yet.</td></tr>`;
+        return;
+      }
+      body.innerHTML = players.map(p => `
+        <tr>
+          <td>${p.name}</td>
+          <td class="num">${p.gamesWon}</td>
+          <td class="num">${p.gamesLost}</td>
+          <td class="num">${p.pointsFor}</td>
+          <td class="num">${p.pointsAgainst}</td>
+          <td class="num">${p.ringers}</td>
+        </tr>`).join('');
     }
-    players.forEach(p => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${p.name}</td>
-        <td class="num">${p.gamesWon}</td>
-        <td class="num">${p.gamesLost}</td>
-        <td class="num">${p.pointsFor}</td>
-        <td class="num">${p.pointsAgainst}</td>
-        <td class="num">${p.ringers}</td>`;
-      pbody.appendChild(tr);
-    });
+    fillPlayerTable('player-body-all', computePlayerStats(data, HOME_TEAM));
+    fillPlayerTable('player-body-league', computePlayerStats(data, HOME_TEAM, 'league'));
+    fillPlayerTable('player-body-cup', computePlayerStats(data, HOME_TEAM, 'cup'));
   } catch (e) {
     document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;
   }

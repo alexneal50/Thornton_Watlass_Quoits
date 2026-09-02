@@ -191,6 +191,9 @@ section{ margin-bottom:44px; }
 .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
 @media (max-width:640px){ .grid-2{ grid-template-columns:1fr; } }
 
+.grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+@media (max-width:900px){ .grid-3{ grid-template-columns:1fr; } }
+
 .pill{
   display:inline-block;
   padding:3px 10px;
@@ -264,6 +267,15 @@ button.link{
   padding-bottom:16px;
   margin-bottom:16px;
 }
+.game-row.captains-row{
+  grid-template-columns:1fr 1fr auto;
+  background:var(--amber-soft);
+  border:1px dashed var(--amber);
+  border-radius:var(--radius-sm);
+  padding:14px 14px 16px;
+}
+.game-row.captains-row .pill{ grid-column:1 / -1; justify-self:start; }
+@media (max-width:640px){ .game-row.captains-row{ grid-template-columns:1fr; } }
 .game-side-fields{
   display:grid;
   grid-template-columns:1fr 1fr;

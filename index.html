@@ -146,7 +146,7 @@ async function renderPage() {
       if (m.home === HOME_TEAM || m.away === HOME_TEAM) tr.className = 'highlight';
       tr.innerHTML = `
         <td>${formatDate(m.date)}</td>
-        <td><span class="pill ${type === 'cup' ? 'draw' : 'win'}" style="font-size:.62rem;">${type === 'cup' ? 'CUP' : 'LGE'}</span></td>
+        <td><span class="pill ${matchTypePillClass(type)}" style="font-size:.62rem;">${type === 'captains-cup' ? 'CAP' : type === 'cup' ? 'CUP' : 'LGE'}</span></td>
         <td>${m.home}</td>
         <td class="num">${t.homeMatchPoints}&ndash;${t.awayMatchPoints} <span style="color:var(--ink-soft); font-weight:400;">(${t.homeWins}&ndash;${t.awayWins} games, ${t.homePts}&ndash;${t.awayPts} pts)</span></td>
         <td>${m.away}</td>`;

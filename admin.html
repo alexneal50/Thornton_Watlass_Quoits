@@ -46,6 +46,7 @@
           <select id="match-type">
             <option value="league">League</option>
             <option value="cup">Cup</option>
+            <option value="captains-cup">Captains Cup</option>
           </select>
         </div>
       </div>
@@ -76,11 +77,12 @@
         </div>
       </div>
 
-      <p class="lede" style="font-size:.8rem; margin-top:-8px;">Cup games count toward player stats but are left out of the league table and season summary.</p>
+      <p class="lede" style="font-size:.8rem; margin-top:-8px;" id="type-note">Cup games count toward player stats but are left out of the league table and season summary.</p>
 
       <h3 style="margin-top:26px;">Games</h3>
       <p class="lede" style="font-size:.85rem;">One row per singles game, playing to 21. Enter each player's points
-        and ringers &mdash; win/loss works out automatically from the scores.</p>
+        and ringers &mdash; win/loss works out automatically from the scores. Leave any row blank (including all
+        seven, if only the captains played) and it's simply left out of the saved match.</p>
       <div id="games-list"></div>
       <button type="button" class="ghost" id="add-game-btn">+ Add game</button>
 
@@ -141,29 +143,42 @@ guardPage().then((user) => {
 <script>
 let DATA = null;
 
-function gameRowTemplate(idx) {
+function gameRowTemplate(idx, opts = {}) {
   const div = document.createElement('div');
-  div.className = 'game-row';
+  div.className = 'game-row' + (opts.captains ? ' captains-row' : '');
   div.dataset.idx = idx;
+  const homeLabel = opts.captains ? 'Home captain' : 'Home player';
+  const awayLabel = opts.captains ? 'Away captain' : 'Away player';
+  const tag = opts.captains ? '<span class="pill draw" style="margin-bottom:8px;">CAPTAINS GAME &middot; OPTIONAL</span>' : '';
   div.innerHTML = `
+    ${tag}
     <div class="game-side">
-      <label>Home player</label>
+      <label>${homeLabel}</label>
       <input type="text" class="g-home-player" placeholder="e.g. J. Metcalfe">
       <div class="game-side-fields">
-        <div><label>Points</label><input type="number" class="g-home-score" min="0" max="21" required></div>
+        <div><label>Points</label><input type="number" class="g-home-score" min="0" max="21"></div>
         <div><label>Ringers</label><input type="number" class="g-home-ringers" min="0" value="0"></div>
       </div>
     </div>
     <div class="game-side">
-      <label>Away player</label>
+      <label>${awayLabel}</label>
       <input type="text" class="g-away-player" placeholder="e.g. T. Wray">
       <div class="game-side-fields">
-        <div><label>Points</label><input type="number" class="g-away-score" min="0" max="21" required></div>
+        <div><label>Points</label><input type="number" class="g-away-score" min="0" max="21"></div>
         <div><label>Ringers</label><input type="number" class="g-away-ringers" min="0" value="0"></div>
       </div>
     </div>
     <button type="button" class="ghost remove-game" title="Remove game">&times;</button>`;
   return div;
+}
+
+/** Fills games-list with 7 blank rows plus one Captains Game row. None are mandatory to fill in
+    — only rows with scores entered are saved when the match is submitted. */
+function fillDefaultGameRows() {
+  const list = document.getElementById('games-list');
+  list.innerHTML = '';
+  for (let i = 0; i < 7; i++) list.appendChild(gameRowTemplate(i));
+  list.appendChild(gameRowTemplate(7, { captains: true }));
 }
 
 function refreshTeamSelects() {
@@ -216,7 +231,7 @@ function renderMatchesTable() {
     const type = m.type || 'league';
     tr.innerHTML = `
       <td>${m.date}</td>
-      <td><span class="pill ${type === 'cup' ? 'draw' : 'win'}">${type === 'cup' ? 'Cup' : 'League'}</span></td>
+      <td><span class="pill ${matchTypePillClass(type)}">${matchTypeLabel(type)}</span></td>
       <td>${m.home}</td><td>${m.away}</td>
       <td class="num">${m.games.length}</td>
       <td><button type="button" class="ghost remove-match" data-id="${m.id}">Remove</button></td>`;
@@ -246,9 +261,31 @@ async function initAdmin() {
   refreshTeamSelects();
   renderTeamsTable();
   renderMatchesTable();
-  document.getElementById('games-list').appendChild(gameRowTemplate(0));
+  if (document.getElementById('match-type').value === 'captains-cup') {
+    document.getElementById('games-list').appendChild(gameRowTemplate(0));
+  } else {
+    fillDefaultGameRows();
+  }
   document.getElementById('date').valueAsDate = new Date();
 }
+
+const TYPE_NOTES = {
+  league: 'League games count toward player stats, the league table, and the season summary.',
+  cup: 'Cup games count toward player stats but are left out of the league table and season summary.',
+  'captains-cup': 'Captains Cup fixtures are a single game and count toward player stats only \u2014 not the league table or season summary.'
+};
+document.getElementById('match-type').addEventListener('change', (e) => {
+  document.getElementById('type-note').textContent = TYPE_NOTES[e.target.value] || '';
+  const list = document.getElementById('games-list');
+  const addBtn = document.getElementById('add-game-btn');
+  if (e.target.value === 'captains-cup') {
+    while (list.children.length > 1) list.removeChild(list.lastElementChild);
+    addBtn.style.display = 'none';
+  } else {
+    addBtn.style.display = '';
+    if (list.children.length <= 1) fillDefaultGameRows();
+  }
+});
 
 document.getElementById('add-team-btn').addEventListener('click', () => {
   const input = document.getElementById('new-team');
@@ -271,7 +308,10 @@ document.getElementById('games-list').addEventListener('click', (e) => {
 
 document.getElementById('add-game-btn').addEventListener('click', () => {
   const list = document.getElementById('games-list');
-  list.appendChild(gameRowTemplate(list.children.length));
+  const captainsRow = list.querySelector('.captains-row');
+  const newRow = gameRowTemplate(list.children.length);
+  if (captainsRow) list.insertBefore(newRow, captainsRow);
+  else list.appendChild(newRow);
 });
 
 document.getElementById('match-form').addEventListener('submit', (e) => {
@@ -281,14 +321,21 @@ document.getElementById('match-form').addEventListener('submit', (e) => {
   if (home === away) { showMsg('Home and away teams must be different.', false); return; }
 
   const gameRows = [...document.querySelectorAll('.game-row')];
-  const games = gameRows.map(row => ({
-    homePlayer: row.querySelector('.g-home-player').value.trim(),
-    awayPlayer: row.querySelector('.g-away-player').value.trim(),
-    homeScore: Number(row.querySelector('.g-home-score').value),
-    awayScore: Number(row.querySelector('.g-away-score').value),
-    homeRingers: Number(row.querySelector('.g-home-ringers').value) || 0,
-    awayRingers: Number(row.querySelector('.g-away-ringers').value) || 0
-  })).filter(g => !isNaN(g.homeScore) && !isNaN(g.awayScore));
+  const games = gameRows.map(row => {
+    const homeScoreRaw = row.querySelector('.g-home-score').value.trim();
+    const awayScoreRaw = row.querySelector('.g-away-score').value.trim();
+    return {
+      homePlayer: row.querySelector('.g-home-player').value.trim(),
+      awayPlayer: row.querySelector('.g-away-player').value.trim(),
+      homeScoreRaw, awayScoreRaw,
+      homeScore: Number(homeScoreRaw),
+      awayScore: Number(awayScoreRaw),
+      homeRingers: Number(row.querySelector('.g-home-ringers').value) || 0,
+      awayRingers: Number(row.querySelector('.g-away-ringers').value) || 0
+    };
+  })
+    .filter(g => g.homeScoreRaw !== '' && g.awayScoreRaw !== '' && !isNaN(g.homeScore) && !isNaN(g.awayScore))
+    .map(({ homeScoreRaw, awayScoreRaw, ...g }) => g);
 
   if (games.length === 0) { showMsg('Add at least one game with scores.', false); return; }
 
@@ -303,8 +350,12 @@ document.getElementById('match-form').addEventListener('submit', (e) => {
   showMsg('Match saved to this page. Remember to download the updated data.json to publish it.', true);
 
   // reset games + date, keep teams for quick multi-entry
-  document.getElementById('games-list').innerHTML = '';
-  document.getElementById('games-list').appendChild(gameRowTemplate(0));
+  if (document.getElementById('match-type').value === 'captains-cup') {
+    document.getElementById('games-list').innerHTML = '';
+    document.getElementById('games-list').appendChild(gameRowTemplate(0));
+  } else {
+    fillDefaultGameRows();
+  }
 });
 
 document.getElementById('download-btn').addEventListener('click', () => {

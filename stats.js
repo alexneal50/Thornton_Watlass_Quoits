@@ -66,7 +66,7 @@ function computeLeagueTable(data) {
   // Only matches between two teams in our own division count toward the table,
   // even if mistagged as League — cross-division fixtures are cup matches.
   const leagueMatches = data.matches.filter(m =>
-    (m.type || 'league') !== 'cup' &&
+    (m.type || 'league') === 'league' &&
     divisionTeams.includes(m.home) &&
     divisionTeams.includes(m.away)
   );
@@ -115,7 +115,7 @@ function computeTeamStats(data, teamName) {
   });
 
   // Cup games show up in the match log but don't count toward the season's league summary.
-  const summary = rows.filter(r => r.type !== 'cup').reduce((s, r) => {
+  const summary = rows.filter(r => r.type === 'league').reduce((s, r) => {
     s.played++;
     if (r.outcome === 'win') s.won++; else if (r.outcome === 'loss') s.lost++; else s.drawn++;
     s.ptsFor += r.teamPts; s.ptsAgainst += r.oppPts;
@@ -125,13 +125,26 @@ function computeTeamStats(data, teamName) {
   return { rows, summary };
 }
 
-function computePlayerStats(data, teamName) {
+function matchTypeLabel(type) {
+  if (type === 'cup') return 'Cup';
+  if (type === 'captains-cup') return 'Captains Cup';
+  return 'League';
+}
+function matchTypePillClass(type) {
+  if (type === 'cup') return 'draw';
+  if (type === 'captains-cup') return 'loss';
+  return 'win';
+}
+
+/** matchType: omit for all games, or pass 'league' / 'cup' to filter. */
+function computePlayerStats(data, teamName, matchType) {
   const players = {};
   const touch = (name) => {
     if (!players[name]) players[name] = { name, gamesPlayed: 0, gamesWon: 0, gamesLost: 0, pointsFor: 0, pointsAgainst: 0, ringers: 0 };
     return players[name];
   };
   for (const m of data.matches) {
+    if (matchType && (m.type || 'league') !== matchType) continue;
     const isHome = m.home === teamName;
     const isAway = m.away === teamName;
     if (!isHome && !isAway) continue;
