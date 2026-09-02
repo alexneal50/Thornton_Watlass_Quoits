@@ -16,6 +16,7 @@ resets.
 - `style.css`, `stats.js` &mdash; styling and the stats calculations
 - `auth.js`, `firebase-config.js` &mdash; the login system; `firebase-config.js` is
   where you paste your own free Firebase project's keys (step 2 below)
+- `quoit.svg` &mdash; the metal quoit graphic shown at the top of each page
 
 The league table and team page are open to anyone with the link. Only
 `admin.html` (entering scores) requires signing in &mdash; it'll bounce you
