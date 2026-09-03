@@ -1556,6 +1556,125 @@
           "awayRingers": 0
         }
       ]
+    },
+    {
+      "id": "m-1788423042406",
+      "date": "2026-05-20",
+      "type": "captains-cup",
+      "home": "Hackforth",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "E Goldstone",
+          "awayPlayer": "Alex Neal",
+          "homeScore": 3,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 4
+        }
+      ]
+    },
+    {
+      "id": "m-1788423110800",
+      "date": "2026-05-27",
+      "type": "captains-cup",
+      "home": "Thornton Watlass",
+      "away": "Thirsk Institute",
+      "games": [
+        {
+          "homePlayer": "Andy Newton",
+          "awayPlayer": "G Hudson",
+          "homeScore": 21,
+          "awayScore": 6,
+          "homeRingers": 3,
+          "awayRingers": 2
+        }
+      ]
+    },
+    {
+      "id": "m-1788423191517",
+      "date": "2026-06-10",
+      "type": "captains-cup",
+      "home": "Kirklington A",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "P Barningham",
+          "awayPlayer": "Dave Woodward",
+          "homeScore": 6,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 0
+        }
+      ]
+    },
+    {
+      "id": "m-1788423245373",
+      "date": "2026-06-17",
+      "type": "captains-cup",
+      "home": "Thornton Watlass",
+      "away": "Riverside A",
+      "games": [
+        {
+          "homePlayer": "Dave Woodward",
+          "awayPlayer": "D Norman",
+          "homeScore": 6,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 3
+        }
+      ]
+    },
+    {
+      "id": "m-1788423277761",
+      "date": "2026-06-18",
+      "type": "captains-cup",
+      "home": "Hunton",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "J Heap",
+          "awayPlayer": "Andy Newton",
+          "homeScore": 7,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 3
+        }
+      ]
+    },
+    {
+      "id": "m-1788423435646",
+      "date": "2026-06-24",
+      "type": "captains-cup",
+      "home": "Tunstall",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "J Sleightholme",
+          "awayPlayer": "Ivan Knights",
+          "homeScore": 21,
+          "awayScore": 18,
+          "homeRingers": 4,
+          "awayRingers": 4
+        }
+      ]
+    },
+    {
+      "id": "m-1788423516970",
+      "date": "2026-07-01",
+      "type": "captains-cup",
+      "home": "Kirkby Fleetham A",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "P Johnston",
+          "awayPlayer": "Alex Neal",
+          "homeScore": 7,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 5
+        }
+      ]
     }
   ]
 }
