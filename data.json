@@ -1522,6 +1522,40 @@
           "awayRingers": 0
         }
       ]
+    },
+    {
+      "id": "m-1788422795888",
+      "date": "2026-05-06",
+      "type": "captains-cup",
+      "home": "The Standard",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "J Knight",
+          "awayPlayer": "Alex Neal",
+          "homeScore": 8,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 5
+        }
+      ]
+    },
+    {
+      "id": "m-1788422848090",
+      "date": "2026-05-13",
+      "type": "captains-cup",
+      "home": "Thornton Watlass",
+      "away": "Riverside B",
+      "games": [
+        {
+          "homePlayer": "Simon Endersby",
+          "awayPlayer": "A Kirkbride",
+          "homeScore": 21,
+          "awayScore": 6,
+          "homeRingers": 0,
+          "awayRingers": 0
+        }
+      ]
     }
   ]
 }
