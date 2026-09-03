@@ -220,6 +220,9 @@ section{ margin-bottom:44px; }
 @media (max-width:900px){ .grid-3{ grid-template-columns:1fr 1fr; } }
 @media (max-width:600px){ .grid-3{ grid-template-columns:1fr; } }
 
+.grid-4{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media (max-width:700px){ .grid-4{ grid-template-columns:1fr; } }
+
 .pill{
   display:inline-block;
   padding:3px 10px;

@@ -9,7 +9,8 @@ resets.
 ## What's in here
 
 - `index.html` &mdash; league table, current Thornton Watlass standing, recent results
-- `team.html` &mdash; Thornton Watlass match log and player/pairing stats
+- `team.html` &mdash; Thornton Watlass player stats (All Games, League, Cup, Captains Cup)
+- `results.html` &mdash; every Thornton Watlass result, with a season filter
 - `cup.html` &mdash; the Cup knockout bracket, round by round
 - `admin.html` &mdash; a form for entering match scores
 - `login.html` &mdash; sign in, create an account, or reset a forgotten password
@@ -99,14 +100,14 @@ Every match is tagged when you enter it (defaults to League):
   table**, shown on the League page below the main table &mdash; they never
   affect Thornton Watlass's league position or the season summary.
 
-Cup and Captains Cup matches still show up in the Our Team match log and in
+Cup and Captains Cup matches still show up on the Results page and in
 "Recent results" on the League page, each with a badge, so nothing's hidden
 &mdash; they just don't feed into the main league numbers.
 
-Player stats on the Our Team page are shown in three tables: **All games**
-(everything, including Captains Cup), **League**, and **Cup**. Captains Cup
-games only appear in the All games table, since they're their own thing
-separate from the regular Cup competition.
+The **Our Team** page shows player stats in four tables: **All Games**,
+**League**, **Cup**, and **Captains Cup**. The **Results** page has the
+full match-by-match log (with a season dropdown to filter by year), and
+the **Cup** page has the knockout bracket.
 
 ## How league points work (main league and Captains League)
 

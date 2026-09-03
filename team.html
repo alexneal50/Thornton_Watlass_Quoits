@@ -17,6 +17,7 @@
       <nav>
         <a href="index.html">League</a>
         <a href="team.html" class="active">Our Team</a>
+        <a href="results.html">Results</a>
         <a href="cup.html">Cup</a>
         <a href="admin.html">Enter Scores</a>
       </nav>
@@ -30,53 +31,52 @@
     <img src="quoit.svg" alt="" class="quoit-icon" aria-hidden="true">
     <h1>Our Team</h1>
   </div>
-  <p class="lede">Thornton Watlass, season <span id="season-year"></span>. Every game we've played this season, and how each player has fared. Player stats include cup games; the season summary below is league games only.</p>
+  <p class="lede">Player stats for Thornton Watlass, based on the scores and ringers entered for each game. See the
+    <a href="results.html">Results</a> page for the full match log.</p>
 
-  <div id="summary-slot"></div>
-
-  <section>
-    <h2>Match log</h2>
-    <div id="matches-slot"></div>
-  </section>
-
-  <section>
-    <h2>Player stats</h2>
-    <p class="lede" style="font-size:.85rem;">Based on the scores and ringers entered for each game.</p>
-    <div class="grid-3">
-      <div>
-        <h3>All games</h3>
-        <div class="table-wrap">
-          <table class="scores" id="player-table-all">
-            <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
-            <tbody id="player-body-all"></tbody>
-          </table>
-        </div>
-      </div>
-      <div>
-        <h3>League</h3>
-        <div class="table-wrap">
-          <table class="scores" id="player-table-league">
-            <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
-            <tbody id="player-body-league"></tbody>
-          </table>
-        </div>
-      </div>
-      <div>
-        <h3>Cup</h3>
-        <div class="table-wrap">
-          <table class="scores" id="player-table-cup">
-            <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
-            <tbody id="player-body-cup"></tbody>
-          </table>
-        </div>
+  <div class="grid-4">
+    <div>
+      <h3>All Games</h3>
+      <div class="table-wrap">
+        <table class="scores" id="player-table-all">
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+          <tbody id="player-body-all"></tbody>
+        </table>
       </div>
     </div>
-  </section>
+    <div>
+      <h3>League</h3>
+      <div class="table-wrap">
+        <table class="scores" id="player-table-league">
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+          <tbody id="player-body-league"></tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h3>Cup</h3>
+      <div class="table-wrap">
+        <table class="scores" id="player-table-cup">
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+          <tbody id="player-body-cup"></tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h3>Captains Cup</h3>
+      <div class="table-wrap">
+        <table class="scores" id="player-table-captains">
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+          <tbody id="player-body-captains"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
 </main>
 
 <footer class="wrap">
-  Thornton Watlass Quoits Club &middot; season <span id="season-year-2"></span>
+  Thornton Watlass Quoits Club &middot; season <span id="season-year"></span>
 </footer>
 
 <script src="stats.js"></script>
@@ -90,54 +90,6 @@ async function renderPage() {
   try {
     const data = await loadData();
     document.getElementById('season-year').textContent = data.season;
-    document.getElementById('season-year-2').textContent = data.season;
-
-    const { rows, summary } = computeTeamStats(data, HOME_TEAM);
-
-    document.getElementById('summary-slot').innerHTML = `
-      <div class="scoreboard">
-        <div>
-          <div class="pos">${summary.won}<span style="font-size:1.6rem;">-${summary.drawn}-${summary.lost}</span></div>
-          <div class="pos-label">Win &ndash; Draw &ndash; Loss</div>
-        </div>
-        <div class="split">
-          <div class="stat"><b>${summary.played}</b><span>Matches</span></div>
-          <div class="stat"><b>${summary.ptsFor}</b><span>Points For</span></div>
-          <div class="stat"><b>${summary.ptsAgainst}</b><span>Points Against</span></div>
-          <div class="stat"><b>${summary.ptsFor - summary.ptsAgainst > 0 ? '+' : ''}${summary.ptsFor - summary.ptsAgainst}</b><span>Difference</span></div>
-        </div>
-      </div>`;
-
-    const matchesSlot = document.getElementById('matches-slot');
-    if (rows.length === 0) {
-      matchesSlot.innerHTML = `<p class="empty">No matches recorded yet.</p>`;
-    } else {
-      rows.forEach(r => {
-        const el = document.createElement('div');
-        el.className = 'card';
-        el.style.marginBottom = '14px';
-        const pillClass = r.outcome === 'win' ? 'win' : r.outcome === 'loss' ? 'loss' : 'draw';
-        const gameRows = r.games.map(g => {
-          const hi = r.isHome;
-          const ourP = hi ? g.homePlayer : g.awayPlayer;
-          const theirP = hi ? g.awayPlayer : g.homePlayer;
-          const ourS = hi ? g.homeScore : g.awayScore;
-          const theirS = hi ? g.awayScore : g.homeScore;
-          return `<tr><td>${ourP}</td><td class="num">${ourS}&ndash;${theirS}</td><td>${theirP}</td></tr>`;
-        }).join('');
-        el.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
-            <h3 style="margin:0;">vs ${r.opponent} <span style="font-weight:400; color:var(--ink-soft); font-size:.85rem;">(${r.isHome ? 'Home' : 'Away'})</span></h3>
-            <div style="display:flex; gap:6px;">
-              <span class="pill ${matchTypePillClass(r.type)}">${matchTypeLabel(r.type).toUpperCase()}</span>
-              <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamMatchPoints}&ndash;${r.oppMatchPoints}</span>
-            </div>
-          </div>
-          <p style="color:var(--ink-soft); font-size:.85rem; margin:2px 0 10px;">${formatDate(r.date)} &middot; ${r.teamGames}&ndash;${r.oppGames} games &middot; ${r.teamPts}&ndash;${r.oppPts} points</p>
-          <table class="scores"><tbody>${gameRows}</tbody></table>`;
-        matchesSlot.appendChild(el);
-      });
-    }
 
     function fillPlayerTable(bodyId, players) {
       const body = document.getElementById(bodyId);
@@ -158,12 +110,9 @@ async function renderPage() {
     fillPlayerTable('player-body-all', computePlayerStats(data, HOME_TEAM));
     fillPlayerTable('player-body-league', computePlayerStats(data, HOME_TEAM, 'league'));
     fillPlayerTable('player-body-cup', computePlayerStats(data, HOME_TEAM, 'cup'));
+    fillPlayerTable('player-body-captains', computePlayerStats(data, HOME_TEAM, 'captains-cup'));
   } catch (e) {
     document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;
-  }
-
-  function formatDate(d) {
-    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 }
 renderPage();
