@@ -339,6 +339,53 @@ footer{
 
 .empty{ color:var(--ink-soft); font-style:italic; padding:20px; text-align:center; }
 
+/* Cup knockout bracket */
+.bracket{
+  display:flex;
+  gap:22px;
+  overflow-x:auto;
+  padding-bottom:10px;
+  -webkit-overflow-scrolling:touch;
+}
+.bracket-col{
+  flex:0 0 220px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.bracket-col h3{
+  color:var(--ink);
+  font-size:.85rem;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-bottom:2px;
+}
+.bracket-col.is-final h3{ color:var(--amber); }
+.tie-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  padding:12px 14px;
+}
+.bracket-col.is-final .tie-card{ border-color:var(--amber); box-shadow:0 0 0 1px var(--amber) inset; }
+.tie-card.highlight{ border-color:var(--green); }
+.tie-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:3px 0;
+  font-size:.88rem;
+  color:var(--ink-soft);
+}
+.tie-row.won{ color:var(--green); font-weight:700; }
+.tie-row.lost{ opacity:.55; }
+.tie-score{ font-variant-numeric:tabular-nums; font-weight:700; }
+.tie-date{ font-size:.7rem; color:var(--ink-soft); margin-top:6px; }
+
+@media (max-width:700px){
+  .bracket-col{ flex-basis:180px; }
+}
+
 /* Auth pages */
 .auth-wrap{
   max-width:400px;

@@ -17,6 +17,7 @@
       <nav>
         <a href="index.html">League</a>
         <a href="team.html">Our Team</a>
+        <a href="cup.html">Cup</a>
         <a href="admin.html" class="active">Enter Scores</a>
       </nav>
       <div class="user-chip" id="user-chip"></div>
@@ -80,6 +81,21 @@
         </div>
       </div>
 
+      <div class="grid-2" id="round-field" style="display:none;">
+        <div>
+          <label for="cup-round">Cup round</label>
+          <select id="cup-round">
+            <option>Round 1</option>
+            <option>Round 2</option>
+            <option>Round 3</option>
+            <option>Quarter-Final</option>
+            <option>Semi-Final</option>
+            <option>Final</option>
+          </select>
+        </div>
+        <div></div>
+      </div>
+
       <p class="lede" style="font-size:.8rem; margin-top:-8px;" id="type-note">Cup games count toward player stats but are left out of the league table and season summary.</p>
 
       <h3 style="margin-top:26px;">Games</h3>
@@ -114,7 +130,7 @@
     <div class="table-wrap">
       <table class="scores" id="matches-table">
         <thead>
-          <tr><th>Date</th><th>Type</th><th>Home</th><th>Away</th><th class="num">Games</th><th></th></tr>
+          <tr><th>Date</th><th>Type</th><th>Round</th><th>Home</th><th>Away</th><th class="num">Games</th><th></th></tr>
         </thead>
         <tbody id="matches-body"></tbody>
       </table>
@@ -226,7 +242,7 @@ function renderMatchesTable() {
   body.innerHTML = '';
   const sorted = [...DATA.matches].sort((a, b) => new Date(b.date) - new Date(a.date));
   if (sorted.length === 0) {
-    body.innerHTML = `<tr><td colspan="6" class="empty">No matches yet.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="7" class="empty">No matches yet.</td></tr>`;
     return;
   }
   sorted.forEach(m => {
@@ -235,6 +251,7 @@ function renderMatchesTable() {
     tr.innerHTML = `
       <td>${m.date}</td>
       <td><span class="pill ${matchTypePillClass(type)}">${matchTypeLabel(type)}</span></td>
+      <td>${type === 'cup' ? (m.round || 'Round 1') : '&mdash;'}</td>
       <td>${m.home}</td><td>${m.away}</td>
       <td class="num">${m.games.length}</td>
       <td><button type="button" class="ghost remove-match" data-id="${m.id}">Remove</button></td>`;
@@ -274,11 +291,12 @@ async function initAdmin() {
 
 const TYPE_NOTES = {
   league: 'League games count toward player stats, the league table, and the season summary.',
-  cup: 'Cup games count toward player stats but are left out of the league table and season summary.',
-  'captains-cup': 'Captains Cup fixtures are a single game and count toward player stats only \u2014 not the league table or season summary.'
+  cup: 'Cup games count toward player stats and show on the Cup knockout page \u2014 they don\u2019t affect the league table or season summary.',
+  'captains-cup': 'Captains Games are a single game each and build their own separate Captains League \u2014 they don\u2019t affect the main league table or season summary.'
 };
 document.getElementById('match-type').addEventListener('change', (e) => {
   document.getElementById('type-note').textContent = TYPE_NOTES[e.target.value] || '';
+  document.getElementById('round-field').style.display = e.target.value === 'cup' ? '' : 'none';
   const list = document.getElementById('games-list');
   const addBtn = document.getElementById('add-game-btn');
   if (e.target.value === 'captains-cup') {
@@ -342,10 +360,12 @@ document.getElementById('match-form').addEventListener('submit', (e) => {
 
   if (games.length === 0) { showMsg('Add at least one game with scores.', false); return; }
 
+  const matchType = document.getElementById('match-type').value;
   const match = {
     id: 'm-' + Date.now(),
     date: document.getElementById('date').value,
-    type: document.getElementById('match-type').value,
+    type: matchType,
+    ...(matchType === 'cup' ? { round: document.getElementById('cup-round').value } : {}),
     home, away, games
   };
   DATA.matches.push(match);

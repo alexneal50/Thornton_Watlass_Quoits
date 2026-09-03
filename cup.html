@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cup &mdash; Thornton Watlass Quoits</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="club" href="index.html"><span class="dot"></span>Thornton Watlass Quoits
+      <small>North Yorkshire Quoits League</small>
+    </a>
+    <div class="navblock">
+      <nav>
+        <a href="index.html">League</a>
+        <a href="team.html">Our Team</a>
+        <a href="cup.html" class="active">Cup</a>
+        <a href="admin.html">Enter Scores</a>
+      </nav>
+      <div class="user-chip" id="user-chip"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-hero">
+    <img src="quoit.svg" alt="" class="quoit-icon" aria-hidden="true">
+    <h1>Cup</h1>
+  </div>
+  <p class="lede">The knockout draw, round by round &mdash; winners carry through to the next column until one team lifts the Cup.</p>
+
+  <div id="bracket-slot"></div>
+</main>
+
+<footer class="wrap">
+  Thornton Watlass Quoits Club &middot; season <span id="season-year"></span>
+</footer>
+
+<script src="stats.js"></script>
+<script type="module">
+import { watchAuthStatus } from './auth.js';
+watchAuthStatus();
+</script>
+<script>
+async function renderPage() {
+  const HOME_TEAM = 'Thornton Watlass';
+  try {
+    const data = await loadData();
+    document.getElementById('season-year').textContent = data.season;
+
+    const bracket = computeCupBracket(data);
+    const slot = document.getElementById('bracket-slot');
+
+    if (bracket.length === 0) {
+      slot.innerHTML = `<p class="empty">No Cup matches recorded yet &mdash; head to <a href="admin.html">Enter Scores</a> and pick "Cup" as the match type.</p>`;
+      return;
+    }
+
+    slot.innerHTML = `<div class="bracket">${bracket.map(col => `
+      <div class="bracket-col ${col.isFinal ? 'is-final' : ''}">
+        <h3>${col.round}${col.isFinal ? ' &middot; <span class="pill draw">FINAL</span>' : ''}</h3>
+        ${col.matches.map(m => tieCard(m)).join('')}
+      </div>
+    `).join('')}</div>`;
+
+    function tieCard(m) {
+      const homeWin = m.winner === m.home;
+      const awayWin = m.winner === m.away;
+      return `
+        <div class="tie-card ${m.home === HOME_TEAM || m.away === HOME_TEAM ? 'highlight' : ''}">
+          <div class="tie-row ${homeWin ? 'won' : m.winner ? 'lost' : ''}">
+            <span class="tie-team">${m.home}${homeWin ? ' &#10003;' : ''}</span>
+            <span class="tie-score">${m.homeMatchPoints}</span>
+          </div>
+          <div class="tie-row ${awayWin ? 'won' : m.winner ? 'lost' : ''}">
+            <span class="tie-team">${m.away}${awayWin ? ' &#10003;' : ''}</span>
+            <span class="tie-score">${m.awayMatchPoints}</span>
+          </div>
+          <div class="tie-date">${formatDate(m.date)}${m.isDraw ? ' &middot; drawn on points' : ''}</div>
+        </div>`;
+    }
+  } catch (e) {
+    document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;
+  }
+
+  function formatDate(d) {
+    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+}
+renderPage();
+</script>
+</body>
+</html>

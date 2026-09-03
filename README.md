@@ -10,6 +10,7 @@ resets.
 
 - `index.html` &mdash; league table, current Thornton Watlass standing, recent results
 - `team.html` &mdash; Thornton Watlass match log and player/pairing stats
+- `cup.html` &mdash; the Cup knockout bracket, round by round
 - `admin.html` &mdash; a form for entering match scores
 - `login.html` &mdash; sign in, create an account, or reset a forgotten password
 - `data.json` &mdash; all the season's data lives here (teams and match scores)
@@ -80,33 +81,40 @@ to `login.html` if you're not.
 Only one person needs to do steps 3&ndash;4 after a match &mdash; everyone
 else just visits the site to look.
 
-## League vs cup vs Captains Cup
+## League vs cup vs Captains Games
 
 Every match is tagged when you enter it (defaults to League):
 
-- **League**: counts everywhere &mdash; player stats, the league table, and
-  the season summary.
-- **Cup**: counts toward player stats and shows in the match log, but not
-  the league table or season summary.
+- **League**: counts everywhere &mdash; player stats, the main league table,
+  and the season summary.
+- **Cup**: counts toward player stats and shows on the dedicated **Cup**
+  page as a knockout bracket, but never touches the league table or season
+  summary. When you enter a Cup match, pick which round it's in (Round 1,
+  Round 2, Round 3, Quarter-Final, Semi-Final, or Final) &mdash; the Cup page
+  groups matches into columns by round, in that order, and highlights
+  whichever team won each tie. Pick **Final** for the last match and it's
+  marked with a gold border and a FINAL badge automatically.
 - **Captains Cup**: a single-game fixture (the form only asks for one game
-  when this is selected). Counts toward player stats only &mdash; not the
-  league table or season summary.
+  when this is selected). These build their **own separate Captains League
+  table**, shown on the League page below the main table &mdash; they never
+  affect Thornton Watlass's league position or the season summary.
 
-Cup and Captains Cup matches still show up in the match log and "Recent
-results", each with a badge, so nothing's hidden &mdash; they just don't
-feed into the league numbers.
+Cup and Captains Cup matches still show up in the Our Team match log and in
+"Recent results" on the League page, each with a badge, so nothing's hidden
+&mdash; they just don't feed into the main league numbers.
 
 Player stats on the Our Team page are shown in three tables: **All games**
 (everything, including Captains Cup), **League**, and **Cup**. Captains Cup
 games only appear in the All games table, since they're their own thing
 separate from the regular Cup competition.
 
-## How league points work
+## How league points work (main league and Captains League)
 
 Each team earns **1 league point for every game they win** in a match, plus
 a **2-point bonus** for whichever team scores more points in total across
 the whole match. If the total points are level, neither side gets the
-bonus.
+bonus. The same scoring applies to the Captains League, just with one game
+per match instead of several.
 
 For example: Team A wins 4 individual games, Team B wins 3 &mdash; but Team
 B's players scored more points in total across the match. Team A gets 4
@@ -114,16 +122,18 @@ league points (4 games, no bonus). Team B gets 3 + 2 = 5 league points. The
 match is recorded as a 4&ndash;5 win for Team B, even though Team A won more
 individual games.
 
-The league table ranks teams by total league points across the season,
-then by points difference.
+Both tables rank teams by total league points across the season, then by
+points difference.
 
 ## Divisions
 
 Every team is tagged **1st Division** or **2nd Division** on the Enter
-Scores page, under "Teams & divisions". The league table only shows teams
-in Thornton Watlass's own division &mdash; teams from the other division
-still need to be added there so they're available to select for cup
-fixtures, they just won't appear in the table itself.
+Scores page, under "Teams & divisions". The main league table only shows
+teams in Thornton Watlass's own division &mdash; teams from the other
+division still need to be added there so they're available to select for
+cup and Captains Games fixtures, they just won't appear in the main table.
+The Captains League isn't restricted by division, since captains games can
+be played against any club.
 
 ## Adjusting things later
 
