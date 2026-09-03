@@ -1675,6 +1675,142 @@
           "awayRingers": 5
         }
       ]
+    },
+    {
+      "id": "m-1788423800862",
+      "date": "2026-07-15",
+      "type": "captains-cup",
+      "home": "Riverside B",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "S Preston",
+          "awayPlayer": "Alex Neal",
+          "homeScore": 21,
+          "awayScore": 5,
+          "homeRingers": 3,
+          "awayRingers": 0
+        }
+      ]
+    },
+    {
+      "id": "m-1788423846420",
+      "date": "2026-07-22",
+      "type": "captains-cup",
+      "home": "Thornton Watlass",
+      "away": "The Standard",
+      "games": [
+        {
+          "homePlayer": "Alex Neal",
+          "awayPlayer": "J Frazier",
+          "homeScore": 21,
+          "awayScore": 8,
+          "homeRingers": 4,
+          "awayRingers": 2
+        }
+      ]
+    },
+    {
+      "id": "m-1788423898648",
+      "date": "2026-07-23",
+      "type": "captains-cup",
+      "home": "Thornton Watlass",
+      "away": "Hackforth",
+      "games": [
+        {
+          "homePlayer": "Alex Neal",
+          "awayPlayer": "H Anderson",
+          "homeScore": 15,
+          "awayScore": 21,
+          "homeRingers": 4,
+          "awayRingers": 3
+        }
+      ]
+    },
+    {
+      "id": "m-1788423967980",
+      "date": "2026-07-29",
+      "type": "captains-cup",
+      "home": "Thirsk Institute",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "G Hudson",
+          "awayPlayer": "Dave Hawes",
+          "homeScore": 14,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 2
+        }
+      ]
+    },
+    {
+      "id": "m-1788424024434",
+      "date": "2026-08-05",
+      "type": "captains-cup",
+      "home": "Thornton Watlass",
+      "away": "Hunton",
+      "games": [
+        {
+          "homePlayer": "Dave Hawes",
+          "awayPlayer": "F Lawrenson",
+          "homeScore": 21,
+          "awayScore": 13,
+          "homeRingers": 2,
+          "awayRingers": 3
+        }
+      ]
+    },
+    {
+      "id": "m-1788424074414",
+      "date": "2026-08-12",
+      "type": "captains-cup",
+      "home": "Thornton Watlass",
+      "away": "Kirklington A",
+      "games": [
+        {
+          "homePlayer": "Dave Hawes",
+          "awayPlayer": "R Ashby",
+          "homeScore": 11,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 3
+        }
+      ]
+    },
+    {
+      "id": "m-1788424202885",
+      "date": "2026-08-19",
+      "type": "captains-cup",
+      "home": "Riverside A",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "C Byrne",
+          "awayPlayer": "Andy Newton",
+          "homeScore": 21,
+          "awayScore": 20,
+          "homeRingers": 4,
+          "awayRingers": 2
+        }
+      ]
+    },
+    {
+      "id": "m-1788424263938",
+      "date": "2026-08-26",
+      "type": "captains-cup",
+      "home": "Thornton Watlass",
+      "away": "Tunstall",
+      "games": [
+        {
+          "homePlayer": "Alex Neal",
+          "awayPlayer": "L Able",
+          "homeScore": 21,
+          "awayScore": 18,
+          "homeRingers": 2,
+          "awayRingers": 2
+        }
+      ]
     }
   ]
 }
