@@ -165,3 +165,13 @@ be played against any club.
   that's a further step up (a small database) &mdash; ask if you want that.
 - Works fine on phones for viewing and signing in; entering scores is
   easiest on a laptop since you're copying a downloaded file into GitHub.
+- **If a match you entered doesn't show up on the site**: the Enter Scores
+  page now has a live "Copy data.json" box that always reflects exactly
+  what's currently saved to the page &mdash; check your entries are really
+  there before publishing. The Download button can be unreliable on some
+  phone browsers (it can navigate away from the page instead of
+  downloading, which looks like your entries vanished) &mdash; if that
+  happens, use **Copy to clipboard** in that box instead and paste
+  directly into `data.json` on GitHub. Download also now saves whatever's
+  in the form automatically first, so nothing's lost if you forget to
+  click "Save match to this page".

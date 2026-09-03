@@ -138,12 +138,27 @@
     </div>
   </section>
 
+  <section class="card">
+    <h2>Copy data.json</h2>
+    <p class="lede" style="font-size:.85rem;">This always reflects everything currently saved to this page &mdash;
+      use it to check your entries are really there, and as a reliable fallback if the Download button doesn't
+      work on your phone (this can happen on some mobile browsers). Select all and copy, or use the button below,
+      then paste over the contents of <code>data.json</code> on GitHub.</p>
+    <textarea id="json-preview" readonly spellcheck="false"
+      style="width:100%; min-height:160px; font-family:ui-monospace,monospace; font-size:.76rem; line-height:1.4; background:var(--surface-2); color:var(--ink); border:1px solid var(--line); border-radius:var(--radius-sm); padding:10px; resize:vertical;"></textarea>
+    <div style="margin-top:10px;">
+      <button type="button" class="secondary" id="copy-json-btn">Copy to clipboard</button>
+    </div>
+  </section>
+
   <section class="card" style="background:var(--green-soft); border:none; box-shadow:none;">
     <h2>Publishing your changes</h2>
     <ol style="padding-left:20px; color:var(--ink-soft);">
-      <li>Click <strong>Download updated data.json</strong> above.</li>
+      <li>Click <strong>Download updated data.json</strong> above, or use <strong>Copy to clipboard</strong> in the
+        "Copy data.json" box if Download doesn't work on your device.</li>
       <li>Go to your website's repository on GitHub.com and open the existing <code>data.json</code> file.</li>
-      <li>Click the pencil (edit) icon, delete the contents, and paste in the downloaded file's contents &mdash; or use "Upload files" and drag the new <code>data.json</code> in to replace it.</li>
+      <li>Click the pencil (edit) icon, select all and delete, then paste in what you downloaded or copied &mdash;
+        or, if you downloaded a file, use "Upload files" and drag it in to replace <code>data.json</code>.</li>
       <li>Click <strong>Commit changes</strong>. The live site updates automatically within a minute or two.</li>
     </ol>
     <p style="color:var(--ink-soft); font-size:.85rem;">See the README in the project files for full GitHub Pages setup steps.</p>
@@ -216,6 +231,11 @@ function refreshTeamSelects() {
   }
 }
 
+function refreshJsonPreview() {
+  const ta = document.getElementById('json-preview');
+  if (ta) ta.value = JSON.stringify(DATA, null, 2);
+}
+
 function renderTeamsTable() {
   const body = document.getElementById('teams-body');
   body.innerHTML = '';
@@ -234,8 +254,10 @@ function renderTeamsTable() {
   body.querySelectorAll('.team-division-select').forEach(sel => {
     sel.addEventListener('change', () => {
       DATA.teams[Number(sel.dataset.idx)].division = Number(sel.value);
+      refreshJsonPreview();
     });
   });
+  refreshJsonPreview();
 }
 
 function renderMatchesTable() {
@@ -244,6 +266,7 @@ function renderMatchesTable() {
   const sorted = [...DATA.matches].sort((a, b) => new Date(b.date) - new Date(a.date));
   if (sorted.length === 0) {
     body.innerHTML = `<tr><td colspan="7" class="empty">No matches yet.</td></tr>`;
+    refreshJsonPreview();
     return;
   }
   sorted.forEach(m => {
@@ -264,6 +287,7 @@ function renderMatchesTable() {
       renderMatchesTable();
     });
   });
+  refreshJsonPreview();
 }
 
 function showMsg(text, ok) {
@@ -336,11 +360,13 @@ document.getElementById('add-game-btn').addEventListener('click', () => {
   else list.appendChild(newRow);
 });
 
-document.getElementById('match-form').addEventListener('submit', (e) => {
-  e.preventDefault();
+/** Builds a match from whatever's currently filled in on the form. Returns
+    {added:true} if a match was pushed to DATA.matches, {added:false, error}
+    if the teams clash, or {added:false} if there was nothing to add. */
+function tryAddMatchFromForm() {
   const home = document.getElementById('home-team').value;
   const away = document.getElementById('away-team').value;
-  if (home === away) { showMsg('Home and away teams must be different.', false); return; }
+  if (home === away) return { added: false, error: 'Home and away teams must be different.' };
 
   const gameRows = [...document.querySelectorAll('.game-row')];
   const games = gameRows.map(row => {
@@ -359,7 +385,7 @@ document.getElementById('match-form').addEventListener('submit', (e) => {
     .filter(g => g.homeScoreRaw !== '' && g.awayScoreRaw !== '' && !isNaN(g.homeScore) && !isNaN(g.awayScore))
     .map(({ homeScoreRaw, awayScoreRaw, ...g }) => g);
 
-  if (games.length === 0) { showMsg('Add at least one game with scores.', false); return; }
+  if (games.length === 0) return { added: false };
 
   const matchType = document.getElementById('match-type').value;
   const match = {
@@ -371,18 +397,48 @@ document.getElementById('match-form').addEventListener('submit', (e) => {
   };
   DATA.matches.push(match);
   renderMatchesTable();
-  showMsg('Match saved to this page. Remember to download the updated data.json to publish it.', true);
+  resetGameForm();
+  return { added: true };
+}
 
-  // reset games + date, keep teams for quick multi-entry
+function resetGameForm() {
   if (document.getElementById('match-type').value === 'captains-cup') {
     document.getElementById('games-list').innerHTML = '';
     document.getElementById('games-list').appendChild(gameRowTemplate(0));
   } else {
     fillDefaultGameRows();
   }
+}
+
+document.getElementById('match-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const result = tryAddMatchFromForm();
+  if (result.error) { showMsg(result.error, false); return; }
+  if (!result.added) { showMsg('Add at least one game with scores.', false); return; }
+  showMsg('Match saved to this page. Remember to download the updated data.json to publish it.', true);
+});
+
+document.getElementById('copy-json-btn').addEventListener('click', async () => {
+  const ta = document.getElementById('json-preview');
+  try {
+    await navigator.clipboard.writeText(ta.value);
+    showMsg('Copied \u2014 paste it over the contents of data.json on GitHub.', true);
+  } catch (e) {
+    ta.focus();
+    ta.select();
+    showMsg('Couldn\u2019t copy automatically \u2014 the text is selected, use your device\u2019s copy action.', false);
+  }
 });
 
 document.getElementById('download-btn').addEventListener('click', () => {
+  const result = tryAddMatchFromForm();
+  if (result.error) {
+    showMsg(result.error + ' Fix that before downloading, or clear the form to download without it.', false);
+    return;
+  }
+  if (result.added) {
+    showMsg('The match you had filled in was saved automatically before downloading.', true);
+  }
   const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
