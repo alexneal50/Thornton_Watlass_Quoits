@@ -206,5 +206,10 @@ function computePlayerStats(data, teamName, matchType) {
       else if (theirScore > ourScore) p.gamesLost++;
     }
   }
-  return Object.values(players).sort((a, b) => b.gamesWon - a.gamesWon || b.gamesPlayed - a.gamesPlayed);
+  const players2 = Object.values(players).map(p => ({
+    ...p,
+    winPct: p.gamesPlayed ? Math.round((p.gamesWon / p.gamesPlayed) * 100) : 0,
+    ringersPerGame: p.gamesPlayed ? p.ringers / p.gamesPlayed : 0
+  }));
+  return players2.sort((a, b) => b.gamesWon - a.gamesWon || b.gamesPlayed - a.gamesPlayed);
 }

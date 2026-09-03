@@ -39,7 +39,7 @@
       <h3>All Games</h3>
       <div class="table-wrap">
         <table class="scores" id="player-table-all">
-          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th></tr></thead>
           <tbody id="player-body-all"></tbody>
         </table>
       </div>
@@ -48,7 +48,7 @@
       <h3>League</h3>
       <div class="table-wrap">
         <table class="scores" id="player-table-league">
-          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th></tr></thead>
           <tbody id="player-body-league"></tbody>
         </table>
       </div>
@@ -57,7 +57,7 @@
       <h3>Cup</h3>
       <div class="table-wrap">
         <table class="scores" id="player-table-cup">
-          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th></tr></thead>
           <tbody id="player-body-cup"></tbody>
         </table>
       </div>
@@ -66,7 +66,7 @@
       <h3>Captains Cup</h3>
       <div class="table-wrap">
         <table class="scores" id="player-table-captains">
-          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th></tr></thead>
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th></tr></thead>
           <tbody id="player-body-captains"></tbody>
         </table>
       </div>
@@ -94,7 +94,7 @@ async function renderPage() {
     function fillPlayerTable(bodyId, players) {
       const body = document.getElementById(bodyId);
       if (players.length === 0) {
-        body.innerHTML = `<tr><td colspan="6" class="empty">No data yet.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="8" class="empty">No data yet.</td></tr>`;
         return;
       }
       body.innerHTML = players.map(p => `
@@ -102,9 +102,11 @@ async function renderPage() {
           <td>${p.name}</td>
           <td class="num">${p.gamesWon}</td>
           <td class="num">${p.gamesLost}</td>
+          <td class="num">${p.winPct}%</td>
           <td class="num">${p.pointsFor}</td>
           <td class="num">${p.pointsAgainst}</td>
           <td class="num">${p.ringers}</td>
+          <td class="num">${p.ringersPerGame.toFixed(1)}</td>
         </tr>`).join('');
     }
     fillPlayerTable('player-body-all', computePlayerStats(data, HOME_TEAM));
