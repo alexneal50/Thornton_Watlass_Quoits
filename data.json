@@ -1505,6 +1505,23 @@
           "awayRingers": 4
         }
       ]
+    },
+    {
+      "id": "m-1788422541781",
+      "date": "2026-04-29",
+      "type": "captains-cup",
+      "home": "Thornton Watlass",
+      "away": "Kirkby Fleetham A",
+      "games": [
+        {
+          "homePlayer": "Alex Neal",
+          "awayPlayer": "Uknown",
+          "homeScore": 21,
+          "awayScore": 4,
+          "homeRingers": 4,
+          "awayRingers": 0
+        }
+      ]
     }
   ]
 }
