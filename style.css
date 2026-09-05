@@ -342,6 +342,56 @@ footer{
 
 .empty{ color:var(--ink-soft); font-style:italic; padding:20px; text-align:center; }
 
+/* Form guide circles (W/L/D) */
+.form-guide{ display:inline-flex; gap:4px; vertical-align:middle; }
+.form-dot{
+  width:16px; height:16px; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:.55rem; font-weight:800; color:#fff;
+  flex-shrink:0;
+}
+.form-dot.W{ background:var(--green); }
+.form-dot.L{ background:var(--red); }
+.form-dot.D{ background:var(--amber); }
+
+/* Season selector */
+.season-select-wrap{ max-width:220px; margin:18px 0 26px; }
+.season-select-wrap label{ display:block; font-size:.82rem; font-weight:600; color:var(--ink); margin-bottom:6px; }
+
+/* Next match widget */
+.next-match{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px 26px;
+  box-shadow:var(--shadow);
+  margin:24px 0 8px;
+}
+.next-match .eyebrow{
+  font-size:.72rem; font-weight:800; letter-spacing:.08em; color:var(--green);
+  margin-bottom:10px;
+}
+.next-match .fixture-teams{ font-size:1.4rem; font-weight:800; color:var(--ink); margin-bottom:12px; }
+.next-match .fixture-details{ display:flex; flex-wrap:wrap; gap:18px; color:var(--ink-soft); font-size:.92rem; margin-bottom:16px; }
+.next-match .fixture-details span{ display:flex; align-items:center; gap:6px; }
+.countdown{ display:flex; gap:14px; flex-wrap:wrap; }
+.countdown .unit{
+  background:var(--green-deep); color:#fff;
+  border-radius:var(--radius-sm);
+  padding:10px 16px;
+  text-align:center;
+  min-width:74px;
+}
+.countdown .unit b{ display:block; font-size:1.5rem; font-weight:800; font-variant-numeric:tabular-nums; color:var(--green-bright); }
+.countdown .unit span{ font-size:.65rem; letter-spacing:.05em; color:rgba(255,255,255,.7); }
+
+@media (max-width:700px){
+  .next-match{ padding:18px 16px; }
+  .next-match .fixture-teams{ font-size:1.15rem; }
+  .countdown .unit{ min-width:64px; padding:8px 10px; }
+  .countdown .unit b{ font-size:1.2rem; }
+}
+
 /* Cup knockout bracket */
 .bracket{
   display:flex;

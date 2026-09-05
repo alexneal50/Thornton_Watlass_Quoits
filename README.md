@@ -8,21 +8,22 @@ resets.
 
 ## What's in here
 
-- `index.html` &mdash; league table, current Thornton Watlass standing, recent results
+- `index.html` &mdash; league table, Next Match countdown, current standing, recent results
 - `team.html` &mdash; Thornton Watlass player stats (All Games, League, Cup, Captains Cup)
 - `results.html` &mdash; every Thornton Watlass result, with a season filter
+- `fixtures.html` &mdash; matches still to be played
 - `cup.html` &mdash; the Cup knockout bracket, round by round
-- `admin.html` &mdash; a form for entering match scores
+- `admin.html` &mdash; a form for entering match scores and fixtures
 - `login.html` &mdash; sign in, create an account, or reset a forgotten password
-- `data.json` &mdash; all the season's data lives here (teams and match scores)
+- `data.json` &mdash; all the season's data lives here (teams, matches, and fixtures)
 - `style.css`, `stats.js` &mdash; styling and the stats calculations
 - `auth.js`, `firebase-config.js` &mdash; the login system; `firebase-config.js` is
   where you paste your own free Firebase project's keys (step 2 below)
 - `quoit.svg` &mdash; the metal quoit graphic shown at the top of each page
 
-The league table and team page are open to anyone with the link. Only
-`admin.html` (entering scores) requires signing in &mdash; it'll bounce you
-to `login.html` if you're not.
+The league table and team pages are open to anyone with the link. Only
+`admin.html` (entering scores and fixtures) requires signing in &mdash; it'll
+bounce you to `login.html` if you're not.
 
 ## One-time setup
 
@@ -135,6 +136,52 @@ division still need to be added there so they're available to select for
 cup and Captains Games fixtures, they just won't appear in the main table.
 The Captains League isn't restricted by division, since captains games can
 be played against any club.
+
+## Seasons
+
+Every page that shows stats (League, Our Team, Cup, Results, Fixtures) has a
+**Season** dropdown, worked out automatically from the years in your match
+and fixture dates &mdash; there's nothing to configure. Picking a season on
+one page remembers your choice on the others, on the same device.
+
+**To start a new season**, just add a fixture dated in the new year on the
+Enter Scores page &mdash; that year then appears as a new option in every
+Season dropdown across the site.
+
+## Fixtures and the Next Match countdown
+
+The **Fixtures** page lists matches still to be played. Add them on the
+Enter Scores page, under "Fixtures" &mdash; date, an optional kick-off time,
+match type (and round, for Cup), teams, and an optional venue (defaults to
+the home team's name if left blank).
+
+The League page shows a **Next Match** box at the top with a live countdown,
+built from whichever of Thornton Watlass's fixtures is soonest. Once that
+match's date and time have passed, it's automatically replaced by the next
+one &mdash; no need to remove anything by hand, though you should still enter
+the actual score afterwards so it shows up in Results.
+
+When entering a match's score on the Enter Scores page, you can pick
+**"Load from a fixture"** at the top of the form to pull in the date, teams,
+and type automatically &mdash; once you save the match, that fixture is
+removed from the upcoming list.
+
+## Player name suggestions
+
+When you type a Thornton Watlass player's name into a game row, previously
+used names suggest automatically (only for Thornton Watlass &mdash; opponents'
+names are always free text, since there's no reason to remember every other
+club's players). This helps keep the same player's stats together rather
+than "J. Metcalfe" and "J Metcalfe" being tracked as two different people.
+
+## Form guides
+
+The League table (both the main table and the Captains League) and every
+player stats table show a strip of coloured circles for the last 5 results
+&mdash; green for a win, red for a loss, amber for a draw, oldest on the
+left. Team form is worked out from whichever competition that table covers
+(League games for the main table, Captains Games for the Captains League);
+player form uses whichever of the four Our Team tables it sits in.
 
 ## Adjusting things later
 

@@ -18,6 +18,7 @@
         <a href="index.html">League</a>
         <a href="team.html" class="active">Our Team</a>
         <a href="results.html">Results</a>
+        <a href="fixtures.html">Fixtures</a>
         <a href="cup.html">Cup</a>
         <a href="admin.html">Enter Scores</a>
       </nav>
@@ -34,12 +35,17 @@
   <p class="lede">Player stats for Thornton Watlass, based on the scores and ringers entered for each game. See the
     <a href="results.html">Results</a> page for the full match log.</p>
 
+  <div class="season-select-wrap">
+    <label for="season-select">Season</label>
+    <select id="season-select"></select>
+  </div>
+
   <div class="grid-4">
     <div>
       <h3>All Games</h3>
       <div class="table-wrap">
         <table class="scores" id="player-table-all">
-          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th></tr></thead>
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th><th>Form</th></tr></thead>
           <tbody id="player-body-all"></tbody>
         </table>
       </div>
@@ -48,7 +54,7 @@
       <h3>League</h3>
       <div class="table-wrap">
         <table class="scores" id="player-table-league">
-          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th></tr></thead>
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th><th>Form</th></tr></thead>
           <tbody id="player-body-league"></tbody>
         </table>
       </div>
@@ -57,7 +63,7 @@
       <h3>Cup</h3>
       <div class="table-wrap">
         <table class="scores" id="player-table-cup">
-          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th></tr></thead>
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th><th>Form</th></tr></thead>
           <tbody id="player-body-cup"></tbody>
         </table>
       </div>
@@ -66,7 +72,7 @@
       <h3>Captains Cup</h3>
       <div class="table-wrap">
         <table class="scores" id="player-table-captains">
-          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th></tr></thead>
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th><th>Form</th></tr></thead>
           <tbody id="player-body-captains"></tbody>
         </table>
       </div>
@@ -88,16 +94,27 @@ watchAuthStatus();
 async function renderPage() {
   const HOME_TEAM = 'Thornton Watlass';
   try {
-    const data = await loadData();
-    document.getElementById('season-year').textContent = data.season;
+    const fullData = await loadData();
+    document.getElementById('season-year').textContent = fullData.season;
+
+    const seasons = computeSeasonList(fullData);
+    const select = document.getElementById('season-select');
+    select.innerHTML = `<option value="all">All seasons</option>` + seasons.map(y => `<option value="${y}">${y}</option>`).join('');
+    select.value = defaultSeason(seasons);
+    select.addEventListener('change', () => { rememberSeason(select.value); renderTables(); });
+    renderTables();
 
     function fillPlayerTable(bodyId, players) {
       const body = document.getElementById(bodyId);
       if (players.length === 0) {
-        body.innerHTML = `<tr><td colspan="8" class="empty">No data yet.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="9" class="empty">No data yet.</td></tr>`;
         return;
       }
-      body.innerHTML = players.map(p => `
+      body.innerHTML = players.map(p => {
+        const formHtml = p.form.length
+          ? `<span class="form-guide">${p.form.map(r => `<span class="form-dot ${r}">${r}</span>`).join('')}</span>`
+          : '&mdash;';
+        return `
         <tr>
           <td>${p.name}</td>
           <td class="num">${p.gamesWon}</td>
@@ -107,12 +124,18 @@ async function renderPage() {
           <td class="num">${p.pointsAgainst}</td>
           <td class="num">${p.ringers}</td>
           <td class="num">${p.ringersPerGame.toFixed(1)}</td>
-        </tr>`).join('');
+          <td>${formHtml}</td>
+        </tr>`;
+      }).join('');
     }
-    fillPlayerTable('player-body-all', computePlayerStats(data, HOME_TEAM));
-    fillPlayerTable('player-body-league', computePlayerStats(data, HOME_TEAM, 'league'));
-    fillPlayerTable('player-body-cup', computePlayerStats(data, HOME_TEAM, 'cup'));
-    fillPlayerTable('player-body-captains', computePlayerStats(data, HOME_TEAM, 'captains-cup'));
+
+    function renderTables() {
+      const data = filterDataToSeason(fullData, select.value);
+      fillPlayerTable('player-body-all', computePlayerStats(data, HOME_TEAM));
+      fillPlayerTable('player-body-league', computePlayerStats(data, HOME_TEAM, 'league'));
+      fillPlayerTable('player-body-cup', computePlayerStats(data, HOME_TEAM, 'cup'));
+      fillPlayerTable('player-body-captains', computePlayerStats(data, HOME_TEAM, 'captains-cup'));
+    }
   } catch (e) {
     document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;
   }

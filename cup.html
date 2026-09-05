@@ -18,6 +18,7 @@
         <a href="index.html">League</a>
         <a href="team.html">Our Team</a>
         <a href="results.html">Results</a>
+        <a href="fixtures.html">Fixtures</a>
         <a href="cup.html" class="active">Cup</a>
         <a href="admin.html">Enter Scores</a>
       </nav>
@@ -32,6 +33,11 @@
     <h1>Cup</h1>
   </div>
   <p class="lede">The knockout draw, round by round &mdash; winners carry through to the next column until one team lifts the Cup.</p>
+
+  <div class="season-select-wrap">
+    <label for="season-select">Season</label>
+    <select id="season-select"></select>
+  </div>
 
   <div id="bracket-slot"></div>
 </main>
@@ -49,23 +55,33 @@ watchAuthStatus();
 async function renderPage() {
   const HOME_TEAM = 'Thornton Watlass';
   try {
-    const data = await loadData();
-    document.getElementById('season-year').textContent = data.season;
+    const fullData = await loadData();
+    document.getElementById('season-year').textContent = fullData.season;
 
-    const bracket = computeCupBracket(data);
-    const slot = document.getElementById('bracket-slot');
+    const seasons = computeSeasonList(fullData);
+    const select = document.getElementById('season-select');
+    select.innerHTML = `<option value="all">All seasons</option>` + seasons.map(y => `<option value="${y}">${y}</option>`).join('');
+    select.value = defaultSeason(seasons);
+    select.addEventListener('change', () => { rememberSeason(select.value); renderBracket(); });
+    renderBracket();
 
-    if (bracket.length === 0) {
-      slot.innerHTML = `<p class="empty">No Cup matches recorded yet &mdash; head to <a href="admin.html">Enter Scores</a> and pick "Cup" as the match type.</p>`;
-      return;
+    function renderBracket() {
+      const data = filterDataToSeason(fullData, select.value);
+      const bracket = computeCupBracket(data);
+      const slot = document.getElementById('bracket-slot');
+
+      if (bracket.length === 0) {
+        slot.innerHTML = `<p class="empty">No Cup matches recorded yet &mdash; head to <a href="admin.html">Enter Scores</a> and pick "Cup" as the match type.</p>`;
+        return;
+      }
+
+      slot.innerHTML = `<div class="bracket">${bracket.map(col => `
+        <div class="bracket-col ${col.isFinal ? 'is-final' : ''}">
+          <h3>${col.round}${col.isFinal ? ' &middot; <span class="pill draw">FINAL</span>' : ''}</h3>
+          ${col.matches.map(m => tieCard(m)).join('')}
+        </div>
+      `).join('')}</div>`;
     }
-
-    slot.innerHTML = `<div class="bracket">${bracket.map(col => `
-      <div class="bracket-col ${col.isFinal ? 'is-final' : ''}">
-        <h3>${col.round}${col.isFinal ? ' &middot; <span class="pill draw">FINAL</span>' : ''}</h3>
-        ${col.matches.map(m => tieCard(m)).join('')}
-      </div>
-    `).join('')}</div>`;
 
     function tieCard(m) {
       const homeWin = m.winner === m.home;

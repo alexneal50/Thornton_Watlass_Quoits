@@ -18,6 +18,7 @@
         <a href="index.html" class="active">League</a>
         <a href="team.html">Our Team</a>
         <a href="results.html">Results</a>
+        <a href="fixtures.html">Fixtures</a>
         <a href="cup.html">Cup</a>
         <a href="admin.html">Enter Scores</a>
       </nav>
@@ -31,6 +32,13 @@
   <div class="page-hero">
     <img src="quoit.svg" alt="" class="quoit-icon" aria-hidden="true">
     <h1>League</h1>
+  </div>
+
+  <div id="next-match-slot"></div>
+
+  <div class="season-select-wrap">
+    <label for="season-select">Season</label>
+    <select id="season-select"></select>
   </div>
 
   <div id="scoreboard-slot"></div>
@@ -51,6 +59,7 @@
             <th class="num">Pts&nbsp;Agst</th>
             <th class="num">Diff</th>
             <th class="num">Pts</th>
+            <th>Form</th>
           </tr>
         </thead>
         <tbody id="league-body"></tbody>
@@ -75,6 +84,7 @@
             <th class="num">Pts&nbsp;Agst</th>
             <th class="num">Diff</th>
             <th class="num">Pts</th>
+            <th>Form</th>
           </tr>
         </thead>
         <tbody id="captains-body"></tbody>
@@ -114,79 +124,108 @@ import { watchAuthStatus } from './auth.js';
 watchAuthStatus();
 </script>
 <script>
+let FULL_DATA = null;
+let countdownTimer = null;
+
 async function renderPage() {
   const HOME_TEAM = 'Thornton Watlass';
   try {
-    const data = await loadData();
-    document.getElementById('season-year').textContent = data.season;
+    FULL_DATA = await loadData();
+    document.getElementById('season-year').textContent = FULL_DATA.season;
 
-    function renderStandings(table, bodyId, emptyId) {
-      const body = document.getElementById(bodyId);
-      if (table.length === 0) document.getElementById(emptyId).style.display = 'block';
-      table.forEach((row, i) => {
+    renderNextMatch(FULL_DATA, HOME_TEAM);
+
+    const seasons = computeSeasonList(FULL_DATA);
+    const select = document.getElementById('season-select');
+    select.innerHTML = `<option value="all">All seasons</option>` + seasons.map(y => `<option value="${y}">${y}</option>`).join('');
+    select.value = defaultSeason(seasons);
+    select.addEventListener('change', () => { rememberSeason(select.value); renderTables(); });
+
+    renderTables();
+
+    function renderTables() {
+      const data = filterDataToSeason(FULL_DATA, select.value);
+
+      function renderStandings(table, bodyId, emptyId, formFilter) {
+        const body = document.getElementById(bodyId);
+        body.innerHTML = '';
+        document.getElementById(emptyId).style.display = table.length === 0 ? 'block' : 'none';
+        table.forEach((row, i) => {
+          const tr = document.createElement('tr');
+          if (row.team === HOME_TEAM) tr.className = 'highlight';
+          const diff = row.ptsFor - row.ptsAgainst;
+          const form = computeTeamForm(data, row.team, formFilter);
+          const formHtml = form.length
+            ? `<span class="form-guide">${form.map(r => `<span class="form-dot ${r}">${r}</span>`).join('')}</span>`
+            : '&mdash;';
+          tr.innerHTML = `
+            <td>${i + 1}. ${row.team}</td>
+            <td class="num">${row.played}</td>
+            <td class="num">${row.won}</td>
+            <td class="num">${row.drawn}</td>
+            <td class="num">${row.lost}</td>
+            <td class="num">${row.ptsFor}</td>
+            <td class="num">${row.ptsAgainst}</td>
+            <td class="num">${diff > 0 ? '+' : ''}${diff}</td>
+            <td class="num"><strong>${row.leaguePoints}</strong></td>
+            <td>${formHtml}</td>`;
+          body.appendChild(tr);
+        });
+      }
+
+      const division = ourDivision(data);
+      const divisionTeams = teamNames(data).filter(n => teamDivision(data, n) === division);
+      const table = computeLeagueTable(data);
+      document.getElementById('league-heading').textContent = `Division ${division} table`;
+      renderStandings(table, 'league-body', 'league-empty',
+        m => (m.type || 'league') === 'league' && divisionTeams.includes(m.home) && divisionTeams.includes(m.away));
+      renderStandings(computeCaptainsTable(data), 'captains-body', 'captains-empty',
+        m => (m.type || 'league') === 'captains-cup');
+
+      // Scoreboard hero: Thornton Watlass position
+      const posIndex = table.findIndex(r => r.team === HOME_TEAM);
+      const us = table[posIndex];
+      const slot = document.getElementById('scoreboard-slot');
+      if (us) {
+        slot.innerHTML = `
+          <div class="scoreboard">
+            <div>
+              <div class="pos">${posIndex + 1}<span style="font-size:1.6rem;">${ordinalSuffix(posIndex + 1)}</span></div>
+              <div class="pos-label">Thornton Watlass, of ${table.length} teams</div>
+            </div>
+            <div class="split">
+              <div class="stat"><b>${us.played}</b><span>Played</span></div>
+              <div class="stat"><b>${us.won}-${us.drawn}-${us.lost}</b><span>W&ndash;D&ndash;L</span></div>
+              <div class="stat"><b>${us.leaguePoints}</b><span>League Pts</span></div>
+              <div class="stat"><b>${us.ptsFor - us.ptsAgainst > 0 ? '+' : ''}${us.ptsFor - us.ptsAgainst}</b><span>Points Diff</span></div>
+            </div>
+          </div>`;
+      } else {
+        slot.innerHTML = `<p class="empty">Add Thornton Watlass matches to see the season scoreboard here.</p>`;
+      }
+
+      // Recent results
+      const recentBody = document.getElementById('recent-body');
+      const recent = [...data.matches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
+      if (recent.length === 0) {
+        recentBody.innerHTML = `<tr><td colspan="5" class="empty">No results yet.</td></tr>`;
+      } else {
+        recentBody.innerHTML = '';
+      }
+      recent.forEach(m => {
+        const t = matchPoints(m);
+        const type = m.type || 'league';
         const tr = document.createElement('tr');
-        if (row.team === HOME_TEAM) tr.className = 'highlight';
-        const diff = row.ptsFor - row.ptsAgainst;
+        if (m.home === HOME_TEAM || m.away === HOME_TEAM) tr.className = 'highlight';
         tr.innerHTML = `
-          <td>${i + 1}. ${row.team}</td>
-          <td class="num">${row.played}</td>
-          <td class="num">${row.won}</td>
-          <td class="num">${row.drawn}</td>
-          <td class="num">${row.lost}</td>
-          <td class="num">${row.ptsFor}</td>
-          <td class="num">${row.ptsAgainst}</td>
-          <td class="num">${diff > 0 ? '+' : ''}${diff}</td>
-          <td class="num"><strong>${row.leaguePoints}</strong></td>`;
-        body.appendChild(tr);
+          <td>${formatDate(m.date)}</td>
+          <td><span class="pill ${matchTypePillClass(type)}" style="font-size:.62rem;">${type === 'captains-cup' ? 'CAP' : type === 'cup' ? 'CUP' : 'LGE'}</span></td>
+          <td>${m.home}</td>
+          <td class="num">${t.homeMatchPoints}&ndash;${t.awayMatchPoints} <span style="color:var(--ink-soft); font-weight:400;">(${t.homeWins}&ndash;${t.awayWins} games, ${t.homePts}&ndash;${t.awayPts} pts)</span></td>
+          <td>${m.away}</td>`;
+        recentBody.appendChild(tr);
       });
     }
-
-    const table = computeLeagueTable(data);
-    document.getElementById('league-heading').textContent = `Division ${ourDivision(data)} table`;
-    renderStandings(table, 'league-body', 'league-empty');
-    renderStandings(computeCaptainsTable(data), 'captains-body', 'captains-empty');
-
-    // Scoreboard hero: Thornton Watlass position
-    const posIndex = table.findIndex(r => r.team === HOME_TEAM);
-    const us = table[posIndex];
-    const slot = document.getElementById('scoreboard-slot');
-    if (us) {
-      slot.innerHTML = `
-        <div class="scoreboard">
-          <div>
-            <div class="pos">${posIndex + 1}<span style="font-size:1.6rem;">${ordinalSuffix(posIndex + 1)}</span></div>
-            <div class="pos-label">Thornton Watlass, of ${table.length} teams</div>
-          </div>
-          <div class="split">
-            <div class="stat"><b>${us.played}</b><span>Played</span></div>
-            <div class="stat"><b>${us.won}-${us.drawn}-${us.lost}</b><span>W&ndash;D&ndash;L</span></div>
-            <div class="stat"><b>${us.leaguePoints}</b><span>League Pts</span></div>
-            <div class="stat"><b>${us.ptsFor - us.ptsAgainst > 0 ? '+' : ''}${us.ptsFor - us.ptsAgainst}</b><span>Points Diff</span></div>
-          </div>
-        </div>`;
-    } else {
-      slot.innerHTML = `<p class="empty">Add Thornton Watlass matches to see the season scoreboard here.</p>`;
-    }
-
-    // Recent results
-    const recentBody = document.getElementById('recent-body');
-    const recent = [...data.matches].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
-    if (recent.length === 0) {
-      recentBody.innerHTML = `<tr><td colspan="5" class="empty">No results yet.</td></tr>`;
-    }
-    recent.forEach(m => {
-      const t = matchPoints(m);
-      const type = m.type || 'league';
-      const tr = document.createElement('tr');
-      if (m.home === HOME_TEAM || m.away === HOME_TEAM) tr.className = 'highlight';
-      tr.innerHTML = `
-        <td>${formatDate(m.date)}</td>
-        <td><span class="pill ${matchTypePillClass(type)}" style="font-size:.62rem;">${type === 'captains-cup' ? 'CAP' : type === 'cup' ? 'CUP' : 'LGE'}</span></td>
-        <td>${m.home}</td>
-        <td class="num">${t.homeMatchPoints}&ndash;${t.awayMatchPoints} <span style="color:var(--ink-soft); font-weight:400;">(${t.homeWins}&ndash;${t.awayWins} games, ${t.homePts}&ndash;${t.awayPts} pts)</span></td>
-        <td>${m.away}</td>`;
-      recentBody.appendChild(tr);
-    });
   } catch (e) {
     document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;
   }
@@ -197,6 +236,54 @@ async function renderPage() {
   }
   function formatDate(d) {
     return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+}
+
+function renderNextMatch(data, HOME_TEAM) {
+  const slot = document.getElementById('next-match-slot');
+  const fixture = computeNextFixture(data, HOME_TEAM);
+  if (countdownTimer) clearInterval(countdownTimer);
+
+  if (!fixture) {
+    slot.innerHTML = `<p class="empty">No upcoming fixtures scheduled &mdash; add one on the <a href="fixtures.html">Fixtures</a> page.</p>`;
+    return;
+  }
+
+  const opponent = fixture.home === HOME_TEAM ? fixture.away : fixture.home;
+  const dateStr = fixture.when.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  const timeStr = fixture.time ? fixture.when.toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit' }) : null;
+  const venue = fixture.venue || fixture.home;
+
+  slot.innerHTML = `
+    <div class="next-match">
+      <div class="eyebrow">NEXT MATCH</div>
+      <div class="fixture-teams">${fixture.home} v ${fixture.away}</div>
+      <div class="fixture-details">
+        <span>&#128197; ${dateStr}</span>
+        ${timeStr ? `<span>&#128337; ${timeStr}</span>` : ''}
+        <span>&#128205; ${venue}</span>
+      </div>
+      <div class="countdown" id="countdown"></div>
+    </div>`;
+
+  updateCountdown(fixture.when);
+  countdownTimer = setInterval(() => updateCountdown(fixture.when), 30000);
+
+  function updateCountdown(when) {
+    const el = document.getElementById('countdown');
+    if (!el) { clearInterval(countdownTimer); return; }
+    const diff = when.getTime() - Date.now();
+    if (diff <= 0) {
+      renderNextMatch(FULL_DATA, HOME_TEAM); // this fixture has passed — move on to the next one
+      return;
+    }
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    el.innerHTML = `
+      <div class="unit"><b>${days}</b><span>DAYS</span></div>
+      <div class="unit"><b>${String(hours).padStart(2, '0')}</b><span>HOURS</span></div>
+      <div class="unit"><b>${String(mins).padStart(2, '0')}</b><span>MINUTES</span></div>`;
   }
 }
 renderPage();

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fixtures &mdash; Thornton Watlass Quoits</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="club" href="index.html"><span class="dot"></span>Thornton Watlass Quoits
+      <small>North Yorkshire Quoits League</small>
+    </a>
+    <div class="navblock">
+      <nav>
+        <a href="index.html">League</a>
+        <a href="team.html">Our Team</a>
+        <a href="results.html">Results</a>
+        <a href="fixtures.html" class="active">Fixtures</a>
+        <a href="cup.html">Cup</a>
+        <a href="admin.html">Enter Scores</a>
+      </nav>
+      <div class="user-chip" id="user-chip"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-hero">
+    <img src="quoit.svg" alt="" class="quoit-icon" aria-hidden="true">
+    <h1>Fixtures</h1>
+  </div>
+  <p class="lede">Matches still to be played. Add fixtures on the <a href="admin.html">Enter Scores</a> page &mdash;
+    that's also where a new season gets started, by adding the first fixture dated in that year.</p>
+
+  <div class="season-select-wrap">
+    <label for="season-select">Season</label>
+    <select id="season-select"></select>
+  </div>
+
+  <div id="fixtures-slot"></div>
+</main>
+
+<footer class="wrap">
+  Thornton Watlass Quoits Club
+</footer>
+
+<script src="stats.js"></script>
+<script type="module">
+import { watchAuthStatus } from './auth.js';
+watchAuthStatus();
+</script>
+<script>
+async function renderPage() {
+  const HOME_TEAM = 'Thornton Watlass';
+  try {
+    const fullData = await loadData();
+
+    const seasons = computeSeasonList(fullData);
+    const select = document.getElementById('season-select');
+    select.innerHTML = `<option value="all">All seasons</option>` + seasons.map(y => `<option value="${y}">${y}</option>`).join('');
+    select.value = defaultSeason(seasons);
+    select.addEventListener('change', () => { rememberSeason(select.value); renderFixtures(); });
+    renderFixtures();
+
+    function renderFixtures() {
+      const data = filterDataToSeason(fullData, select.value);
+      const slot = document.getElementById('fixtures-slot');
+      const fixtures = [...(data.fixtures || [])].sort((a, b) =>
+        new Date(`${a.date}T${a.time || '00:00'}`) - new Date(`${b.date}T${b.time || '00:00'}`));
+
+      if (fixtures.length === 0) {
+        slot.innerHTML = `<p class="empty">No fixtures ${select.value === 'all' ? 'added yet' : `for ${select.value}`}.</p>`;
+        return;
+      }
+
+      const now = new Date();
+      slot.innerHTML = fixtures.map(f => {
+        const when = new Date(`${f.date}T${f.time || '00:00'}`);
+        const isPast = when.getTime() < now.getTime();
+        const type = f.type || 'league';
+        return `
+          <div class="card" style="margin-bottom:14px; ${isPast ? 'opacity:.6;' : ''}">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
+              <h3 style="margin:0;">${f.home} v ${f.away}</h3>
+              <div style="display:flex; gap:6px;">
+                <span class="pill ${matchTypePillClass(type)}">${matchTypeLabel(type).toUpperCase()}</span>
+                ${type === 'cup' && f.round ? `<span class="pill draw">${f.round.toUpperCase()}</span>` : ''}
+                ${isPast ? `<span class="pill loss">RESULT DUE</span>` : ''}
+              </div>
+            </div>
+            <p style="color:var(--ink-soft); font-size:.85rem; margin:6px 0 0;">
+              &#128197; ${formatDate(f.date)}${f.time ? ` &middot; &#128337; ${formatTime(f.date, f.time)}` : ''}
+              ${f.venue ? ` &middot; &#128205; ${f.venue}` : ''}
+            </p>
+          </div>`;
+      }).join('');
+    }
+  } catch (e) {
+    document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;
+  }
+
+  function formatDate(d) {
+    return new Date(d).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function formatTime(d, t) {
+    return new Date(`${d}T${t}`).toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit' });
+  }
+}
+renderPage();
+</script>
+</body>
+</html>

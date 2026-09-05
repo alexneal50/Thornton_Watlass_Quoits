@@ -18,6 +18,7 @@
         <a href="index.html">League</a>
         <a href="team.html">Our Team</a>
         <a href="results.html">Results</a>
+        <a href="fixtures.html">Fixtures</a>
         <a href="cup.html">Cup</a>
         <a href="admin.html" class="active">Enter Scores</a>
       </nav>
@@ -41,7 +42,13 @@
 
   <div class="card">
     <form id="match-form">
-      <div class="grid-2">
+      <label for="load-fixture-select">Load from a fixture (optional)</label>
+      <select id="load-fixture-select">
+        <option value="">&mdash; New match, not from a fixture &mdash;</option>
+      </select>
+      <input type="hidden" id="loaded-fixture-id" value="">
+
+      <div class="grid-2" style="margin-top:16px;">
         <div>
           <label for="date">Date</label>
           <input type="date" id="date" required>
@@ -102,7 +109,9 @@
       <h3 style="margin-top:26px;">Games</h3>
       <p class="lede" style="font-size:.85rem;">One row per singles game, playing to 21. Enter each player's points
         and ringers &mdash; win/loss works out automatically from the scores. Leave any row blank (including all
-        seven, if only the captains played) and it's simply left out of the saved match.</p>
+        seven, if only the captains played) and it's simply left out of the saved match. Thornton Watlass player
+        names suggest as you type, based on names used before.</p>
+      <datalist id="tw-players"></datalist>
       <div id="games-list"></div>
       <button type="button" class="ghost" id="add-game-btn">+ Add game</button>
 
@@ -121,6 +130,64 @@
       <table class="scores" id="teams-table">
         <thead><tr><th>Team</th><th>Division</th></tr></thead>
         <tbody id="teams-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Fixtures</h2>
+    <p class="lede" style="font-size:.85rem;">Add matches still to be played here &mdash; they'll show on the
+      Fixtures page and the League page's Next Match box. To start a new season, just add the first fixture dated
+      in that year.</p>
+    <div class="card">
+      <div class="grid-2">
+        <div>
+          <label for="fx-date">Date</label>
+          <input type="date" id="fx-date">
+        </div>
+        <div>
+          <label for="fx-time">Kick-off time (optional)</label>
+          <input type="time" id="fx-time">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label for="fx-type">Match type</label>
+          <select id="fx-type">
+            <option value="league">League</option>
+            <option value="cup">Cup</option>
+            <option value="captains-cup">Captains Cup</option>
+          </select>
+        </div>
+        <div id="fx-round-field" style="display:none;">
+          <label for="fx-round">Cup round</label>
+          <select id="fx-round">
+            <option>Round 1</option><option>Round 2</option><option>Round 3</option>
+            <option>Quarter-Final</option><option>Semi-Final</option><option>Final</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label for="fx-home">Home team</label>
+          <select id="fx-home"></select>
+        </div>
+        <div>
+          <label for="fx-away">Away team</label>
+          <select id="fx-away"></select>
+        </div>
+      </div>
+      <label for="fx-venue">Venue (optional &mdash; defaults to the home team's name)</label>
+      <input type="text" id="fx-venue" placeholder="e.g. Thornton Watlass">
+      <div style="margin-top:16px;">
+        <button type="button" id="add-fixture-btn">Add fixture</button>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:18px;">
+      <table class="scores" id="fixtures-table">
+        <thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Home</th><th>Away</th><th class="num"></th></tr></thead>
+        <tbody id="fixtures-body"></tbody>
       </table>
     </div>
   </section>
@@ -185,11 +252,13 @@ function gameRowTemplate(idx, opts = {}) {
   const homeLabel = opts.captains ? 'Home captain' : 'Home player';
   const awayLabel = opts.captains ? 'Away captain' : 'Away player';
   const tag = opts.captains ? '<span class="pill draw" style="margin-bottom:8px;">CAPTAINS GAME &middot; OPTIONAL</span>' : '';
+  const homeIsTW = document.getElementById('home-team').value === 'Thornton Watlass';
+  const awayIsTW = document.getElementById('away-team').value === 'Thornton Watlass';
   div.innerHTML = `
     ${tag}
     <div class="game-side">
       <label>${homeLabel}</label>
-      <input type="text" class="g-home-player" placeholder="e.g. J. Metcalfe">
+      <input type="text" class="g-home-player"${homeIsTW ? ' list="tw-players"' : ''} placeholder="e.g. J. Metcalfe">
       <div class="game-side-fields">
         <div><label>Points</label><input type="number" class="g-home-score" min="0" max="21"></div>
         <div><label>Ringers</label><input type="number" class="g-home-ringers" min="0" value="0"></div>
@@ -197,7 +266,7 @@ function gameRowTemplate(idx, opts = {}) {
     </div>
     <div class="game-side">
       <label>${awayLabel}</label>
-      <input type="text" class="g-away-player" placeholder="e.g. T. Wray">
+      <input type="text" class="g-away-player"${awayIsTW ? ' list="tw-players"' : ''} placeholder="e.g. T. Wray">
       <div class="game-side-fields">
         <div><label>Points</label><input type="number" class="g-away-score" min="0" max="21"></div>
         <div><label>Ringers</label><input type="number" class="g-away-ringers" min="0" value="0"></div>
@@ -205,6 +274,25 @@ function gameRowTemplate(idx, opts = {}) {
     </div>
     <button type="button" class="ghost remove-game" title="Remove game">&times;</button>`;
   return div;
+}
+
+/** Re-checks every existing game row and toggles the TW-players suggestion
+    list on whichever side (home/away) is currently Thornton Watlass. */
+function updatePlayerListAttributes() {
+  const homeIsTW = document.getElementById('home-team').value === 'Thornton Watlass';
+  const awayIsTW = document.getElementById('away-team').value === 'Thornton Watlass';
+  document.querySelectorAll('.g-home-player').forEach(inp => {
+    if (homeIsTW) inp.setAttribute('list', 'tw-players'); else inp.removeAttribute('list');
+  });
+  document.querySelectorAll('.g-away-player').forEach(inp => {
+    if (awayIsTW) inp.setAttribute('list', 'tw-players'); else inp.removeAttribute('list');
+  });
+}
+
+function refreshPlayerDatalist() {
+  const dl = document.getElementById('tw-players');
+  if (!dl) return;
+  dl.innerHTML = knownPlayerNames(DATA, 'Thornton Watlass').map(n => `<option value="${n}"></option>`).join('');
 }
 
 /** Fills games-list with 7 blank rows plus one Captains Game row. None are mandatory to fill in
@@ -266,6 +354,7 @@ function renderMatchesTable() {
   const sorted = [...DATA.matches].sort((a, b) => new Date(b.date) - new Date(a.date));
   if (sorted.length === 0) {
     body.innerHTML = `<tr><td colspan="7" class="empty">No matches yet.</td></tr>`;
+    refreshPlayerDatalist();
     refreshJsonPreview();
     return;
   }
@@ -287,7 +376,61 @@ function renderMatchesTable() {
       renderMatchesTable();
     });
   });
+  refreshPlayerDatalist();
   refreshJsonPreview();
+}
+
+function refreshFixtureTeamSelects() {
+  const names = DATA.teams.map(t => t.name);
+  ['fx-home', 'fx-away'].forEach(id => {
+    const sel = document.getElementById(id);
+    const current = sel.value;
+    sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
+    if (names.includes(current)) sel.value = current;
+  });
+  if (document.getElementById('fx-away').value === document.getElementById('fx-home').value) {
+    const alt = names.find(n => n !== document.getElementById('fx-home').value);
+    if (alt) document.getElementById('fx-away').value = alt;
+  }
+}
+
+function renderFixturesTable() {
+  const body = document.getElementById('fixtures-body');
+  const sorted = [...(DATA.fixtures || [])].sort((a, b) =>
+    new Date(`${a.date}T${a.time || '00:00'}`) - new Date(`${b.date}T${b.time || '00:00'}`));
+
+  if (sorted.length === 0) {
+    body.innerHTML = `<tr><td colspan="6" class="empty">No fixtures yet.</td></tr>`;
+  } else {
+    body.innerHTML = '';
+    sorted.forEach(f => {
+      const tr = document.createElement('tr');
+      const type = f.type || 'league';
+      tr.innerHTML = `
+        <td>${f.date}</td>
+        <td>${f.time || '&mdash;'}</td>
+        <td><span class="pill ${matchTypePillClass(type)}">${matchTypeLabel(type)}</span></td>
+        <td>${f.home}</td><td>${f.away}</td>
+        <td class="num"><button type="button" class="ghost remove-fixture" data-id="${f.id}">Remove</button></td>`;
+      body.appendChild(tr);
+    });
+    body.querySelectorAll('.remove-fixture').forEach(btn => {
+      btn.addEventListener('click', () => {
+        DATA.fixtures = DATA.fixtures.filter(f => f.id !== btn.dataset.id);
+        renderFixturesTable();
+        refreshLoadFixtureSelect();
+      });
+    });
+  }
+  refreshJsonPreview();
+}
+
+function refreshLoadFixtureSelect() {
+  const sel = document.getElementById('load-fixture-select');
+  const sorted = [...(DATA.fixtures || [])].sort((a, b) =>
+    new Date(`${a.date}T${a.time || '00:00'}`) - new Date(`${b.date}T${b.time || '00:00'}`));
+  sel.innerHTML = `<option value="">&mdash; New match, not from a fixture &mdash;</option>` +
+    sorted.map(f => `<option value="${f.id}">${f.date} &mdash; ${f.home} v ${f.away}</option>`).join('');
 }
 
 function showMsg(text, ok) {
@@ -300,17 +443,22 @@ async function initAdmin() {
   try {
     DATA = await loadData();
   } catch (e) {
-    DATA = { season: new Date().getFullYear().toString(), homeTeam: 'Thornton Watlass', teams: [{ name: 'Thornton Watlass', division: 1 }], matches: [] };
+    DATA = { season: new Date().getFullYear().toString(), homeTeam: 'Thornton Watlass', teams: [{ name: 'Thornton Watlass', division: 1 }], matches: [], fixtures: [] };
     showMsg("Couldn't find an existing data.json &mdash; starting a fresh one.", false);
   }
+  if (!DATA.fixtures) DATA.fixtures = [];
   refreshTeamSelects();
+  refreshFixtureTeamSelects();
   renderTeamsTable();
   renderMatchesTable();
+  renderFixturesTable();
+  refreshLoadFixtureSelect();
   if (document.getElementById('match-type').value === 'captains-cup') {
     document.getElementById('games-list').appendChild(gameRowTemplate(0));
   } else {
     fillDefaultGameRows();
   }
+  updatePlayerListAttributes();
   document.getElementById('date').valueAsDate = new Date();
 }
 
@@ -333,6 +481,56 @@ document.getElementById('match-type').addEventListener('change', (e) => {
   }
 });
 
+document.getElementById('fx-type').addEventListener('change', (e) => {
+  document.getElementById('fx-round-field').style.display = e.target.value === 'cup' ? '' : 'none';
+});
+
+document.getElementById('add-fixture-btn').addEventListener('click', () => {
+  const home = document.getElementById('fx-home').value;
+  const away = document.getElementById('fx-away').value;
+  const date = document.getElementById('fx-date').value;
+  if (!date) { showMsg('Pick a date for the fixture.', false); return; }
+  if (home === away) { showMsg('Home and away teams must be different.', false); return; }
+  const type = document.getElementById('fx-type').value;
+  const fixture = {
+    id: 'fx-' + Date.now(),
+    date,
+    time: document.getElementById('fx-time').value || '',
+    venue: document.getElementById('fx-venue').value.trim(),
+    type,
+    ...(type === 'cup' ? { round: document.getElementById('fx-round').value } : {}),
+    home, away
+  };
+  DATA.fixtures.push(fixture);
+  renderFixturesTable();
+  refreshLoadFixtureSelect();
+  document.getElementById('fx-date').value = '';
+  document.getElementById('fx-time').value = '';
+  document.getElementById('fx-venue').value = '';
+  showMsg('Fixture added.', true);
+});
+
+document.getElementById('load-fixture-select').addEventListener('change', (e) => {
+  const id = e.target.value;
+  document.getElementById('loaded-fixture-id').value = id;
+  if (!id) return;
+  const fixture = DATA.fixtures.find(f => f.id === id);
+  if (!fixture) return;
+
+  document.getElementById('date').value = fixture.date;
+  document.getElementById('home-team').value = fixture.home;
+  document.getElementById('away-team').value = fixture.away;
+  updatePlayerListAttributes();
+
+  const typeSelect = document.getElementById('match-type');
+  typeSelect.value = fixture.type || 'league';
+  typeSelect.dispatchEvent(new Event('change'));
+  if (fixture.type === 'cup' && fixture.round) {
+    document.getElementById('cup-round').value = fixture.round;
+  }
+  showMsg(`Loaded ${fixture.home} v ${fixture.away} \u2014 fill in the games below.`, true);
+});
+
 document.getElementById('add-team-btn').addEventListener('click', () => {
   const input = document.getElementById('new-team');
   const name = input.value.trim();
@@ -341,6 +539,7 @@ document.getElementById('add-team-btn').addEventListener('click', () => {
   if (!DATA.teams.some(t => t.name === name)) DATA.teams.push({ name, division });
   input.value = '';
   refreshTeamSelects();
+  refreshFixtureTeamSelects();
   renderTeamsTable();
   document.getElementById('away-team').value = name;
 });
@@ -397,11 +596,21 @@ function tryAddMatchFromForm() {
   };
   DATA.matches.push(match);
   renderMatchesTable();
+
+  const loadedFixtureId = document.getElementById('loaded-fixture-id').value;
+  if (loadedFixtureId) {
+    DATA.fixtures = DATA.fixtures.filter(f => f.id !== loadedFixtureId);
+    renderFixturesTable();
+    refreshLoadFixtureSelect();
+  }
+
   resetGameForm();
   return { added: true };
 }
 
 function resetGameForm() {
+  document.getElementById('loaded-fixture-id').value = '';
+  document.getElementById('load-fixture-select').value = '';
   if (document.getElementById('match-type').value === 'captains-cup') {
     document.getElementById('games-list').innerHTML = '';
     document.getElementById('games-list').appendChild(gameRowTemplate(0));

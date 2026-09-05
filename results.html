@@ -18,6 +18,7 @@
         <a href="index.html">League</a>
         <a href="team.html">Our Team</a>
         <a href="results.html" class="active">Results</a>
+        <a href="fixtures.html">Fixtures</a>
         <a href="cup.html">Cup</a>
         <a href="admin.html">Enter Scores</a>
       </nav>
@@ -33,8 +34,8 @@
   </div>
   <p class="lede">Every Thornton Watlass result &mdash; League, Cup, and Captains Cup.</p>
 
-  <div style="max-width:220px; margin:18px 0 26px;">
-    <label for="season-select" style="display:block; font-size:.82rem; font-weight:600; color:var(--ink); margin-bottom:6px;">Season</label>
+  <div class="season-select-wrap">
+    <label for="season-select">Season</label>
     <select id="season-select"></select>
   </div>
 
@@ -57,11 +58,11 @@ async function renderPage() {
     const data = await loadData();
     const { rows } = computeTeamStats(data, HOME_TEAM);
 
-    const years = [...new Set(rows.map(r => new Date(r.date).getFullYear()))].sort((a, b) => b - a);
+    const years = computeSeasonList(data);
     const select = document.getElementById('season-select');
     select.innerHTML = `<option value="all">All seasons</option>` +
       years.map(y => `<option value="${y}">${y}</option>`).join('');
-    select.value = years.length ? String(years[0]) : 'all';
+    select.value = defaultSeason(years);
 
     function renderMatches() {
       const chosen = select.value;
@@ -98,7 +99,7 @@ async function renderPage() {
       }).join('');
     }
 
-    select.addEventListener('change', renderMatches);
+    select.addEventListener('change', () => { rememberSeason(select.value); renderMatches(); });
     renderMatches();
   } catch (e) {
     document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;

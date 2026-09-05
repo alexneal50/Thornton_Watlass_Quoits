@@ -10,6 +10,37 @@ async function loadData() {
   return res.json();
 }
 
+/** Distinct years (as numbers, newest first) found across matches and fixtures. */
+function computeSeasonList(data) {
+  const years = new Set();
+  for (const m of data.matches || []) years.add(new Date(m.date).getFullYear());
+  for (const f of data.fixtures || []) years.add(new Date(f.date).getFullYear());
+  return [...years].sort((a, b) => b - a);
+}
+
+/** Returns a shallow copy of data with matches/fixtures filtered to one season
+    (a year, as number or string). Pass 'all' (or omit) for every season. */
+function filterDataToSeason(data, season) {
+  if (!season || season === 'all') return data;
+  const year = Number(season);
+  return {
+    ...data,
+    matches: (data.matches || []).filter(m => new Date(m.date).getFullYear() === year),
+    fixtures: (data.fixtures || []).filter(f => new Date(f.date).getFullYear() === year)
+  };
+}
+
+/** The season (year) to default a dropdown to: whatever was last picked on
+    this device, if it's still a valid option, else the most recent season. */
+function defaultSeason(seasons) {
+  const remembered = (typeof localStorage !== 'undefined') ? localStorage.getItem('quoits-season') : null;
+  if (remembered && (remembered === 'all' || seasons.includes(Number(remembered)))) return remembered;
+  return seasons.length ? String(seasons[0]) : 'all';
+}
+function rememberSeason(season) {
+  if (typeof localStorage !== 'undefined') localStorage.setItem('quoits-season', season);
+}
+
 function matchGameTally(match) {
   let homeWins = 0, awayWins = 0, homePts = 0, awayPts = 0;
   for (const g of match.games) {
@@ -103,6 +134,24 @@ function computeCaptainsTable(data) {
   return computeStandings(data, m => (m.type || 'league') === 'captains-cup', []);
 }
 
+/** Last n results for a team (within whichever matches are passed in),
+    oldest first — 'W' / 'L' / 'D'. Use the same matchFilter you'd pass to
+    computeStandings so the form matches whatever table it sits next to. */
+function computeTeamForm(data, teamName, matchFilter, n) {
+  n = n || 5;
+  const matches = data.matches
+    .filter(matchFilter)
+    .filter(m => m.home === teamName || m.away === teamName)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  return matches.slice(-n).map(m => {
+    const isHome = m.home === teamName;
+    const result = matchResult(m);
+    if (result === 'draw') return 'D';
+    const won = (result === 'home' && isHome) || (result === 'away' && !isHome);
+    return won ? 'W' : 'L';
+  });
+}
+
 function computeTeamStats(data, teamName) {
   const relevant = data.matches
     .filter(m => m.home === teamName || m.away === teamName)
@@ -182,7 +231,7 @@ function matchTypePillClass(type) {
 function computePlayerStats(data, teamName, matchType) {
   const players = {};
   const touch = (name) => {
-    if (!players[name]) players[name] = { name, gamesPlayed: 0, gamesWon: 0, gamesLost: 0, pointsFor: 0, pointsAgainst: 0, ringers: 0 };
+    if (!players[name]) players[name] = { name, gamesPlayed: 0, gamesWon: 0, gamesLost: 0, pointsFor: 0, pointsAgainst: 0, ringers: 0, formEntries: [] };
     return players[name];
   };
   for (const m of data.matches) {
@@ -202,14 +251,46 @@ function computePlayerStats(data, teamName, matchType) {
       p.pointsFor += Number(ourScore) || 0;
       p.pointsAgainst += Number(theirScore) || 0;
       p.ringers += ourRingers;
-      if (ourScore > theirScore) p.gamesWon++;
-      else if (theirScore > ourScore) p.gamesLost++;
+      if (ourScore > theirScore) { p.gamesWon++; p.formEntries.push({ date: m.date, result: 'W' }); }
+      else if (theirScore > ourScore) { p.gamesLost++; p.formEntries.push({ date: m.date, result: 'L' }); }
     }
   }
-  const players2 = Object.values(players).map(p => ({
-    ...p,
-    winPct: p.gamesPlayed ? Math.round((p.gamesWon / p.gamesPlayed) * 100) : 0,
-    ringersPerGame: p.gamesPlayed ? p.ringers / p.gamesPlayed : 0
-  }));
+  const players2 = Object.values(players).map(p => {
+    const form = p.formEntries.sort((a, b) => new Date(a.date) - new Date(b.date)).slice(-5).map(f => f.result);
+    const { formEntries, ...rest } = p;
+    return {
+      ...rest,
+      form,
+      winPct: p.gamesPlayed ? Math.round((p.gamesWon / p.gamesPlayed) * 100) : 0,
+      ringersPerGame: p.gamesPlayed ? p.ringers / p.gamesPlayed : 0
+    };
+  });
   return players2.sort((a, b) => b.gamesWon - a.gamesWon || b.gamesPlayed - a.gamesPlayed);
+}
+
+/** Every player's name who has appeared for teamName, for autocomplete. */
+function knownPlayerNames(data, teamName) {
+  const names = new Set();
+  for (const m of data.matches || []) {
+    const isHome = m.home === teamName, isAway = m.away === teamName;
+    if (!isHome && !isAway) continue;
+    for (const g of m.games || []) {
+      const raw = isHome ? g.homePlayer : g.awayPlayer;
+      const n = (raw || '').trim();
+      if (n) names.add(n);
+    }
+  }
+  return [...names].sort();
+}
+
+/** The soonest fixture involving teamName that hasn't happened yet (date+time
+    in the future relative to `now`), or null if there isn't one. */
+function computeNextFixture(data, teamName, now) {
+  now = now || new Date();
+  const upcoming = (data.fixtures || [])
+    .filter(f => f.home === teamName || f.away === teamName)
+    .map(f => ({ ...f, when: new Date(`${f.date}T${f.time || '00:00'}`) }))
+    .filter(f => f.when.getTime() > now.getTime())
+    .sort((a, b) => a.when - b.when);
+  return upcoming.length ? upcoming[0] : null;
 }
