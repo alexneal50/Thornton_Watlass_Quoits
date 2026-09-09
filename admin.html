@@ -34,11 +34,77 @@
     <img src="quoit.svg" alt="" class="quoit-icon" aria-hidden="true">
     <h1>Enter Scores</h1>
   </div>
-  <p class="lede">This page works entirely in your browser &mdash; nothing is saved online automatically. When you're
-    done, click <strong>Download updated data.json</strong> and replace the file in the website's files (see
-    "Publishing your changes" below).</p>
+  <p class="lede">There are two separate things you can do here: <strong>add a fixture</strong> for a match that
+    hasn't been played yet (no scores needed), or <strong>enter a result</strong> once a match has happened. This
+    page works entirely in your browser &mdash; nothing is saved online automatically. When you're done, click
+    <strong>Download updated data.json</strong> and replace the file in the website's files (see "Publishing your
+    changes" below).</p>
 
   <div id="load-msg"></div>
+
+  <section>
+    <h2>Add a fixture</h2>
+    <p class="lede" style="font-size:.85rem;">For a match that hasn't been played yet &mdash; just the date, teams,
+      and details, no scores. It'll show on the Fixtures page and the League page's Next Match box. To start a new
+      season, just add the first fixture dated in that year.</p>
+    <div class="card">
+      <div class="grid-2">
+        <div>
+          <label for="fx-date">Date</label>
+          <input type="date" id="fx-date">
+        </div>
+        <div>
+          <label for="fx-time">Kick-off time (optional)</label>
+          <input type="time" id="fx-time">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label for="fx-type">Match type</label>
+          <select id="fx-type">
+            <option value="league">League</option>
+            <option value="cup">Cup</option>
+            <option value="captains-cup">Captains Cup</option>
+            <option value="friendly">Friendly</option>
+          </select>
+        </div>
+        <div id="fx-round-field" style="display:none;">
+          <label for="fx-round">Cup round</label>
+          <select id="fx-round">
+            <option>Round 1</option><option>Round 2</option><option>Round 3</option>
+            <option>Quarter-Final</option><option>Semi-Final</option><option>Final</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label for="fx-home">Home team</label>
+          <select id="fx-home"></select>
+        </div>
+        <div>
+          <label for="fx-away">Away team</label>
+          <select id="fx-away"></select>
+        </div>
+      </div>
+      <label for="fx-venue">Venue (optional &mdash; defaults to the home team's name)</label>
+      <input type="text" id="fx-venue" placeholder="e.g. Thornton Watlass">
+      <div style="margin-top:16px;">
+        <button type="button" id="add-fixture-btn">Add fixture</button>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:18px;">
+      <table class="scores" id="fixtures-table">
+        <thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Home</th><th>Away</th><th class="num"></th></tr></thead>
+        <tbody id="fixtures-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section style="margin-top:48px;">
+    <h2>Enter a result</h2>
+    <p class="lede" style="font-size:.85rem;">Once a match has been played, enter its score here &mdash; either from
+      scratch, or by loading a fixture you added above to save re-typing the date and teams.</p>
 
   <div class="card">
     <form id="match-form">
@@ -122,6 +188,7 @@
       </div>
     </form>
   </div>
+  </section>
 
   <section>
     <h2>Teams &amp; divisions</h2>
@@ -131,65 +198,6 @@
       <table class="scores" id="teams-table">
         <thead><tr><th>Team</th><th>Division</th></tr></thead>
         <tbody id="teams-body"></tbody>
-      </table>
-    </div>
-  </section>
-
-  <section>
-    <h2>Fixtures</h2>
-    <p class="lede" style="font-size:.85rem;">Add matches still to be played here &mdash; they'll show on the
-      Fixtures page and the League page's Next Match box. To start a new season, just add the first fixture dated
-      in that year.</p>
-    <div class="card">
-      <div class="grid-2">
-        <div>
-          <label for="fx-date">Date</label>
-          <input type="date" id="fx-date">
-        </div>
-        <div>
-          <label for="fx-time">Kick-off time (optional)</label>
-          <input type="time" id="fx-time">
-        </div>
-      </div>
-      <div class="grid-2">
-        <div>
-          <label for="fx-type">Match type</label>
-          <select id="fx-type">
-            <option value="league">League</option>
-            <option value="cup">Cup</option>
-            <option value="captains-cup">Captains Cup</option>
-            <option value="friendly">Friendly</option>
-          </select>
-        </div>
-        <div id="fx-round-field" style="display:none;">
-          <label for="fx-round">Cup round</label>
-          <select id="fx-round">
-            <option>Round 1</option><option>Round 2</option><option>Round 3</option>
-            <option>Quarter-Final</option><option>Semi-Final</option><option>Final</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid-2">
-        <div>
-          <label for="fx-home">Home team</label>
-          <select id="fx-home"></select>
-        </div>
-        <div>
-          <label for="fx-away">Away team</label>
-          <select id="fx-away"></select>
-        </div>
-      </div>
-      <label for="fx-venue">Venue (optional &mdash; defaults to the home team's name)</label>
-      <input type="text" id="fx-venue" placeholder="e.g. Thornton Watlass">
-      <div style="margin-top:16px;">
-        <button type="button" id="add-fixture-btn">Add fixture</button>
-      </div>
-    </div>
-
-    <div class="table-wrap" style="margin-top:18px;">
-      <table class="scores" id="fixtures-table">
-        <thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Home</th><th>Away</th><th class="num"></th></tr></thead>
-        <tbody id="fixtures-body"></tbody>
       </table>
     </div>
   </section>
