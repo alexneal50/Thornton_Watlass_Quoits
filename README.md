@@ -9,7 +9,7 @@ resets.
 ## What's in here
 
 - `index.html` &mdash; league table, Next Match countdown, current standing, recent results
-- `team.html` &mdash; Thornton Watlass player stats (All Games, League, Cup, Captains Cup)
+- `team.html` &mdash; Thornton Watlass player stats (All Games, League, Cup, Captains Cup, Friendlies)
 - `results.html` &mdash; every Thornton Watlass result, with a season filter
 - `fixtures.html` &mdash; matches still to be played
 - `cup.html` &mdash; the Cup knockout bracket, round by round
@@ -83,7 +83,7 @@ bounce you to `login.html` if you're not.
 Only one person needs to do steps 3&ndash;4 after a match &mdash; everyone
 else just visits the site to look.
 
-## League vs cup vs Captains Games
+## League vs cup vs Captains Games vs Friendlies
 
 Every match is tagged when you enter it (defaults to League):
 
@@ -100,15 +100,18 @@ Every match is tagged when you enter it (defaults to League):
   when this is selected). These build their **own separate Captains League
   table**, shown on the League page below the main table &mdash; they never
   affect Thornton Watlass's league position or the season summary.
+- **Friendly**: a normal full match, entered the same way as League or Cup.
+  Counts toward player stats (with its own Friendlies table on Our Team) but
+  never touches the main league table or season summary.
 
-Cup and Captains Cup matches still show up on the Results page and in
-"Recent results" on the League page, each with a badge, so nothing's hidden
-&mdash; they just don't feed into the main league numbers.
+Cup, Captains Cup, and Friendly matches still show up on the Results page
+and in "Recent results" on the League page, each with a badge, so nothing's
+hidden &mdash; they just don't feed into the main league numbers.
 
-The **Our Team** page shows player stats in four tables: **All Games**,
-**League**, **Cup**, and **Captains Cup**. The **Results** page has the
-full match-by-match log (with a season dropdown to filter by year), and
-the **Cup** page has the knockout bracket.
+The **Our Team** page shows player stats in five tables: **All Games**,
+**League**, **Cup**, **Captains Cup**, and **Friendlies**. The **Results**
+page has the full match-by-match log (with a season dropdown to filter by
+year), and the **Cup** page has the knockout bracket.
 
 ## How league points work (main league and Captains League)
 

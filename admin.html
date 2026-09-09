@@ -59,6 +59,7 @@
             <option value="league">League</option>
             <option value="cup">Cup</option>
             <option value="captains-cup">Captains Cup</option>
+            <option value="friendly">Friendly</option>
           </select>
         </div>
       </div>
@@ -157,6 +158,7 @@
             <option value="league">League</option>
             <option value="cup">Cup</option>
             <option value="captains-cup">Captains Cup</option>
+            <option value="friendly">Friendly</option>
           </select>
         </div>
         <div id="fx-round-field" style="display:none;">
@@ -465,7 +467,8 @@ async function initAdmin() {
 const TYPE_NOTES = {
   league: 'League games count toward player stats, the league table, and the season summary.',
   cup: 'Cup games count toward player stats and show on the Cup knockout page \u2014 they don\u2019t affect the league table or season summary.',
-  'captains-cup': 'Captains Games are a single game each and build their own separate Captains League \u2014 they don\u2019t affect the main league table or season summary.'
+  'captains-cup': 'Captains Games are a single game each and build their own separate Captains League \u2014 they don\u2019t affect the main league table or season summary.',
+  friendly: 'Friendlies count toward player stats (with their own Friendlies table) but don\u2019t affect the league table or season summary.'
 };
 document.getElementById('match-type').addEventListener('change', (e) => {
   document.getElementById('type-note').textContent = TYPE_NOTES[e.target.value] || '';

@@ -219,11 +219,13 @@ function computeCupBracket(data) {
 function matchTypeLabel(type) {
   if (type === 'cup') return 'Cup';
   if (type === 'captains-cup') return 'Captains Cup';
+  if (type === 'friendly') return 'Friendly';
   return 'League';
 }
 function matchTypePillClass(type) {
   if (type === 'cup') return 'draw';
   if (type === 'captains-cup') return 'loss';
+  if (type === 'friendly') return 'friendly';
   return 'win';
 }
 

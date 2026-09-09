@@ -40,7 +40,7 @@
     <select id="season-select"></select>
   </div>
 
-  <div class="grid-4">
+  <div class="stats-grid">
     <div>
       <h3>All Games</h3>
       <div class="table-wrap">
@@ -74,6 +74,15 @@
         <table class="scores" id="player-table-captains">
           <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th><th>Form</th></tr></thead>
           <tbody id="player-body-captains"></tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h3>Friendlies</h3>
+      <div class="table-wrap">
+        <table class="scores" id="player-table-friendly">
+          <thead><tr><th>Player</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win%</th><th class="num">For</th><th class="num">Agst</th><th class="num">Rgrs</th><th class="num">R/G</th><th>Form</th></tr></thead>
+          <tbody id="player-body-friendly"></tbody>
         </table>
       </div>
     </div>
@@ -135,6 +144,7 @@ async function renderPage() {
       fillPlayerTable('player-body-league', computePlayerStats(data, HOME_TEAM, 'league'));
       fillPlayerTable('player-body-cup', computePlayerStats(data, HOME_TEAM, 'cup'));
       fillPlayerTable('player-body-captains', computePlayerStats(data, HOME_TEAM, 'captains-cup'));
+      fillPlayerTable('player-body-friendly', computePlayerStats(data, HOME_TEAM, 'friendly'));
     }
   } catch (e) {
     document.querySelector('main').innerHTML = `<p class="msg err">Couldn't load data.json &mdash; ${e.message}</p>`;

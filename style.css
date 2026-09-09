@@ -16,6 +16,8 @@
   --amber-soft:   #FDF1DA;
   --red:          #DC2626;
   --red-soft:     #FDE8E7;
+  --blue:         #2563EB;
+  --blue-soft:    #E1E9FB;
   --radius:       12px;
   --radius-sm:    8px;
   --shadow:       0 1px 2px rgba(20,30,20,0.05), 0 10px 26px rgba(20,30,20,0.09);
@@ -223,6 +225,8 @@ section{ margin-bottom:44px; }
 .grid-4{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
 @media (max-width:700px){ .grid-4{ grid-template-columns:1fr; } }
 
+.stats-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px; }
+
 .pill{
   display:inline-block;
   padding:3px 10px;
@@ -234,6 +238,7 @@ section{ margin-bottom:44px; }
 .pill.win{ background:var(--green); color:#fff; }
 .pill.loss{ background:var(--red); color:#fff; }
 .pill.draw{ background:var(--amber); color:#fff; }
+.pill.friendly{ background:var(--blue); color:#fff; }
 
 form label{
   display:block;
