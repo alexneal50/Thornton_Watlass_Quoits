@@ -225,3 +225,11 @@ player form uses whichever of the four Our Team tables it sits in.
   directly into `data.json` on GitHub. Download also now saves whatever's
   in the form automatically first, so nothing's lost if you forget to
   click "Save match to this page".
+- **Nothing you add is saved anywhere until you publish it**: fixtures,
+  results, new teams &mdash; everything on the Enter Scores page only lives
+  in that browser tab until you Download or Copy the file and upload it to
+  GitHub. Navigating to another page (or closing the tab) before doing that
+  loses whatever you added, since the next page load fetches the real
+  `data.json` from GitHub, which never had your changes. The page will now
+  show a browser warning if you try to navigate away with unpublished
+  changes, as a safety net.

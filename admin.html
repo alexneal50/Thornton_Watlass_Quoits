@@ -254,6 +254,14 @@ guardPage().then((user) => {
 </script>
 <script>
 let DATA = null;
+let unpublishedChanges = false;
+
+window.addEventListener('beforeunload', (e) => {
+  if (unpublishedChanges) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
 
 function gameRowTemplate(idx, opts = {}) {
   const div = document.createElement('div');
@@ -352,6 +360,7 @@ function renderTeamsTable() {
   body.querySelectorAll('.team-division-select').forEach(sel => {
     sel.addEventListener('change', () => {
       DATA.teams[Number(sel.dataset.idx)].division = Number(sel.value);
+      unpublishedChanges = true;
       refreshJsonPreview();
     });
   });
@@ -383,6 +392,7 @@ function renderMatchesTable() {
   body.querySelectorAll('.remove-match').forEach(btn => {
     btn.addEventListener('click', () => {
       DATA.matches = DATA.matches.filter(m => m.id !== btn.dataset.id);
+      unpublishedChanges = true;
       renderMatchesTable();
     });
   });
@@ -427,6 +437,7 @@ function renderFixturesTable() {
     body.querySelectorAll('.remove-fixture').forEach(btn => {
       btn.addEventListener('click', () => {
         DATA.fixtures = DATA.fixtures.filter(f => f.id !== btn.dataset.id);
+        unpublishedChanges = true;
         renderFixturesTable();
         refreshLoadFixtureSelect();
       });
@@ -513,6 +524,7 @@ document.getElementById('add-fixture-btn').addEventListener('click', () => {
     home, away
   };
   DATA.fixtures.push(fixture);
+  unpublishedChanges = true;
   renderFixturesTable();
   refreshLoadFixtureSelect();
   document.getElementById('fx-date').value = '';
@@ -547,7 +559,7 @@ document.getElementById('add-team-btn').addEventListener('click', () => {
   const name = input.value.trim();
   const division = Number(document.getElementById('new-team-division').value);
   if (!name) return;
-  if (!DATA.teams.some(t => t.name === name)) DATA.teams.push({ name, division });
+  if (!DATA.teams.some(t => t.name === name)) { DATA.teams.push({ name, division }); unpublishedChanges = true; }
   input.value = '';
   refreshTeamSelects();
   refreshFixtureTeamSelects();
@@ -606,11 +618,13 @@ function tryAddMatchFromForm() {
     home, away, games
   };
   DATA.matches.push(match);
+  unpublishedChanges = true;
   renderMatchesTable();
 
   const loadedFixtureId = document.getElementById('loaded-fixture-id').value;
   if (loadedFixtureId) {
     DATA.fixtures = DATA.fixtures.filter(f => f.id !== loadedFixtureId);
+    unpublishedChanges = true;
     renderFixturesTable();
     refreshLoadFixtureSelect();
   }
@@ -642,7 +656,8 @@ document.getElementById('copy-json-btn').addEventListener('click', async () => {
   const ta = document.getElementById('json-preview');
   try {
     await navigator.clipboard.writeText(ta.value);
-    showMsg('Copied \u2014 paste it over the contents of data.json on GitHub.', true);
+    unpublishedChanges = false;
+    showMsg('Copied \u2014 now paste it over the contents of data.json on GitHub and commit, or your changes will be lost.', true);
   } catch (e) {
     ta.focus();
     ta.select();
@@ -656,9 +671,6 @@ document.getElementById('download-btn').addEventListener('click', () => {
     showMsg(result.error + ' Fix that before downloading, or clear the form to download without it.', false);
     return;
   }
-  if (result.added) {
-    showMsg('The match you had filled in was saved automatically before downloading.', true);
-  }
   const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -666,6 +678,9 @@ document.getElementById('download-btn').addEventListener('click', () => {
   a.download = 'data.json';
   a.click();
   URL.revokeObjectURL(url);
+  unpublishedChanges = false;
+  const savedNote = result.added ? 'The match you had filled in was saved automatically. ' : '';
+  showMsg(savedNote + 'Downloaded \u2014 now upload it to GitHub and commit, or these changes will be lost.', true);
 });
 </script>
 </body>
