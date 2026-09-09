@@ -1,7 +1,17 @@
 {
   "season": "2026",
   "homeTeam": "Thornton Watlass",
-  "fixtures": [],
+  "fixtures": [
+    {
+      "id": "fx-1788946728239",
+      "date": "2026-09-09",
+      "time": "18:30",
+      "venue": "",
+      "type": "friendly",
+      "home": "Finghall",
+      "away": "Thornton Watlass"
+    }
+  ],
   "teams": [
     {
       "name": "Thornton Watlass",
