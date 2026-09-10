@@ -198,6 +198,9 @@ th{
   padding:9px 10px;
   white-space:nowrap;
 }
+th[data-key]{ cursor:pointer; user-select:none; }
+th[data-key]:hover{ color:var(--green); }
+.sort-arrow{ font-size:.6rem; color:var(--green); }
 td{ padding:11px 10px; border-bottom:1px solid var(--line); }
 tr.highlight td{ background:var(--green-soft); font-weight:600; }
 td.num, th.num{ text-align:right; }

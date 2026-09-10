@@ -264,7 +264,8 @@ function computePlayerStats(data, teamName, matchType) {
       ...rest,
       form,
       winPct: p.gamesPlayed ? Math.round((p.gamesWon / p.gamesPlayed) * 100) : 0,
-      ringersPerGame: p.gamesPlayed ? p.ringers / p.gamesPlayed : 0
+      ringersPerGame: p.gamesPlayed ? p.ringers / p.gamesPlayed : 0,
+      pointsAvg: p.gamesPlayed ? p.pointsFor / p.gamesPlayed : 0
     };
   });
   return players2.sort((a, b) => b.gamesWon - a.gamesWon || b.gamesPlayed - a.gamesPlayed);
