@@ -2,6 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>
+(function(){
+  try {
+    var saved = localStorage.getItem('quoits-theme');
+    if (saved === 'dark' || saved === 'light') {
+      document.documentElement.setAttribute('data-theme', saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  } catch (e) {}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Results &mdash; Thornton Watlass Quoits</title>
 <link rel="stylesheet" href="style.css">
@@ -22,6 +34,7 @@
         <a href="cup.html">Cup</a>
         <a href="admin.html">Enter Scores</a>
       </nav>
+      <button type="button" id="theme-toggle" aria-label="Toggle dark mode"></button>
       <div class="user-chip" id="user-chip"></div>
     </div>
   </div>
@@ -47,6 +60,7 @@
 </footer>
 
 <script src="stats.js"></script>
+<script src="theme.js"></script>
 <script type="module">
 import { watchAuthStatus } from './auth.js';
 watchAuthStatus();

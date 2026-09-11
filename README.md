@@ -20,6 +20,7 @@ resets.
 - `auth.js`, `firebase-config.js` &mdash; the login system; `firebase-config.js` is
   where you paste your own free Firebase project's keys (step 2 below)
 - `quoit.svg` &mdash; the metal quoit graphic shown at the top of each page
+- `theme.js` &mdash; the dark/light mode toggle
 
 The league table and team pages are open to anyone with the link. Only
 `admin.html` (entering scores and fixtures) requires signing in &mdash; it'll
@@ -185,6 +186,14 @@ player stats table show a strip of coloured circles for the last 5 results
 left. Team form is worked out from whichever competition that table covers
 (League games for the main table, Captains Games for the Captains League);
 player form uses whichever of the four Our Team tables it sits in.
+
+## Dark mode
+
+There's a small sun/moon button in the top-right of every page that switches
+between light and dark. The choice is remembered per device (and per
+browser), so everyone can pick whichever they prefer without affecting
+anyone else. If nobody's chosen yet, it follows the device's own light/dark
+setting.
 
 ## Adjusting things later
 

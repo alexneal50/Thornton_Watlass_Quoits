@@ -2,6 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>
+(function(){
+  try {
+    var saved = localStorage.getItem('quoits-theme');
+    if (saved === 'dark' || saved === 'light') {
+      document.documentElement.setAttribute('data-theme', saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  } catch (e) {}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign in &mdash; Thornton Watlass Quoits</title>
 <link rel="stylesheet" href="style.css">
@@ -9,6 +21,9 @@
 <body>
 
 <div class="auth-wrap">
+  <div style="text-align:right; margin-bottom:6px;">
+    <button type="button" id="theme-toggle" aria-label="Toggle dark mode"></button>
+  </div>
   <div class="auth-brand">
     <img src="quoit.svg" alt="" class="quoit-icon" aria-hidden="true">
     <h1 style="font-size:1.3rem;">Thornton Watlass Quoits</h1>
@@ -67,6 +82,7 @@
   </div>
 </div>
 
+<script src="theme.js"></script>
 <script type="module">
 import { auth } from './auth.js';
 import {

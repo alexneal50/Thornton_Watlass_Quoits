@@ -2,6 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>
+(function(){
+  try {
+    var saved = localStorage.getItem('quoits-theme');
+    if (saved === 'dark' || saved === 'light') {
+      document.documentElement.setAttribute('data-theme', saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  } catch (e) {}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thornton Watlass &mdash; Our Team</title>
 <link rel="stylesheet" href="style.css">
@@ -22,6 +34,7 @@
         <a href="cup.html">Cup</a>
         <a href="admin.html">Enter Scores</a>
       </nav>
+      <button type="button" id="theme-toggle" aria-label="Toggle dark mode"></button>
       <div class="user-chip" id="user-chip"></div>
     </div>
   </div>
@@ -41,53 +54,55 @@
     <select id="season-select"></select>
   </div>
 
-  <div class="stats-grid">
-    <div>
-      <h3>All Games</h3>
-      <div class="table-wrap">
-        <table class="scores" id="player-table-all">
-          <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
-          <tbody id="player-body-all"></tbody>
-        </table>
-      </div>
+  <section>
+    <h2>All Games</h2>
+    <div class="table-wrap">
+      <table class="scores" id="player-table-all">
+        <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
+        <tbody id="player-body-all"></tbody>
+      </table>
     </div>
-    <div>
-      <h3>League</h3>
-      <div class="table-wrap">
-        <table class="scores" id="player-table-league">
-          <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
-          <tbody id="player-body-league"></tbody>
-        </table>
-      </div>
+  </section>
+
+  <section>
+    <h2>League</h2>
+    <div class="table-wrap">
+      <table class="scores" id="player-table-league">
+        <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
+        <tbody id="player-body-league"></tbody>
+      </table>
     </div>
-    <div>
-      <h3>Cup</h3>
-      <div class="table-wrap">
-        <table class="scores" id="player-table-cup">
-          <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
-          <tbody id="player-body-cup"></tbody>
-        </table>
-      </div>
+  </section>
+
+  <section>
+    <h2>Cup</h2>
+    <div class="table-wrap">
+      <table class="scores" id="player-table-cup">
+        <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
+        <tbody id="player-body-cup"></tbody>
+      </table>
     </div>
-    <div>
-      <h3>Captains Cup</h3>
-      <div class="table-wrap">
-        <table class="scores" id="player-table-captains">
-          <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
-          <tbody id="player-body-captains"></tbody>
-        </table>
-      </div>
+  </section>
+
+  <section>
+    <h2>Captains Cup</h2>
+    <div class="table-wrap">
+      <table class="scores" id="player-table-captains">
+        <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
+        <tbody id="player-body-captains"></tbody>
+      </table>
     </div>
-    <div>
-      <h3>Friendlies</h3>
-      <div class="table-wrap">
-        <table class="scores" id="player-table-friendly">
-          <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
-          <tbody id="player-body-friendly"></tbody>
-        </table>
-      </div>
+  </section>
+
+  <section>
+    <h2>Friendlies</h2>
+    <div class="table-wrap">
+      <table class="scores" id="player-table-friendly">
+        <thead><tr><th data-key="name">Player</th><th class="num" data-key="gamesWon">Won</th><th class="num" data-key="gamesLost">Lost</th><th class="num" data-key="winPct">Win%</th><th class="num" data-key="pointsFor">For</th><th class="num" data-key="pointsAgainst">Agst</th><th class="num" data-key="pointsAvg">Pts&nbsp;Avg</th><th class="num" data-key="ringers">Rgrs</th><th class="num" data-key="ringersPerGame">R/G</th><th>Form</th></tr></thead>
+        <tbody id="player-body-friendly"></tbody>
+      </table>
     </div>
-  </div>
+  </section>
 
 </main>
 
@@ -96,6 +111,7 @@
 </footer>
 
 <script src="stats.js"></script>
+<script src="theme.js"></script>
 <script type="module">
 import { watchAuthStatus } from './auth.js';
 watchAuthStatus();
