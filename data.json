@@ -1,17 +1,7 @@
 {
   "season": "2026",
   "homeTeam": "Thornton Watlass",
-  "fixtures": [
-    {
-      "id": "fx-1788946728239",
-      "date": "2026-09-09",
-      "time": "18:30",
-      "venue": "",
-      "type": "friendly",
-      "home": "Finghall",
-      "away": "Thornton Watlass"
-    }
-  ],
+  "fixtures": [],
   "teams": [
     {
       "name": "Thornton Watlass",
@@ -1820,6 +1810,79 @@
           "awayScore": 18,
           "homeRingers": 2,
           "awayRingers": 2
+        }
+      ]
+    },
+    {
+      "id": "m-1789117309958",
+      "date": "2026-09-09",
+      "type": "friendly",
+      "home": "Finghall",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "E Harltey",
+          "awayPlayer": "Dave Smith",
+          "homeScore": 3,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 3
+        },
+        {
+          "homePlayer": "C Harrison",
+          "awayPlayer": "Dave Woodward",
+          "homeScore": 7,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 3
+        },
+        {
+          "homePlayer": "R McKinley",
+          "awayPlayer": "Dave Hawes",
+          "homeScore": 14,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 1
+        },
+        {
+          "homePlayer": "G Lonie",
+          "awayPlayer": "Alex Neal",
+          "homeScore": 21,
+          "awayScore": 12,
+          "homeRingers": 2,
+          "awayRingers": 1
+        },
+        {
+          "homePlayer": "R Warne",
+          "awayPlayer": "Andy Newton",
+          "homeScore": 2,
+          "awayScore": 21,
+          "homeRingers": 0,
+          "awayRingers": 7
+        },
+        {
+          "homePlayer": "D Ventham",
+          "awayPlayer": "Ivan Knights",
+          "homeScore": 9,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 4
+        },
+        {
+          "homePlayer": "D Smith",
+          "awayPlayer": "Simon Endersby",
+          "homeScore": 19,
+          "awayScore": 21,
+          "homeRingers": 3,
+          "awayRingers": 2
+        },
+        {
+          "homePlayer": "D Ventham",
+          "awayPlayer": "Steve Kilding",
+          "homeScore": 21,
+          "awayScore": 17,
+          "homeRingers": 1,
+          "awayRingers": 0
         }
       ]
     }
