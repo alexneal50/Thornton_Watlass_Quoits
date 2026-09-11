@@ -1885,6 +1885,79 @@
           "awayRingers": 0
         }
       ]
+    },
+    {
+      "id": "m-1789121746461",
+      "date": "2026-06-18",
+      "type": "league",
+      "home": "Hunton",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "I Whitehead",
+          "awayPlayer": "Dave Hawes",
+          "homeScore": 20,
+          "awayScore": 21,
+          "homeRingers": 2,
+          "awayRingers": 2
+        },
+        {
+          "homePlayer": "M Phillip",
+          "awayPlayer": "Dave Woodward",
+          "homeScore": 7,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 1
+        },
+        {
+          "homePlayer": "S Porritt",
+          "awayPlayer": "Steve Kilding",
+          "homeScore": 21,
+          "awayScore": 15,
+          "homeRingers": 4,
+          "awayRingers": 0
+        },
+        {
+          "homePlayer": "J Huffadine",
+          "awayPlayer": "Andy Newton",
+          "homeScore": 21,
+          "awayScore": 19,
+          "homeRingers": 6,
+          "awayRingers": 5
+        },
+        {
+          "homePlayer": "R Bruce",
+          "awayPlayer": "Ivan Knights",
+          "homeScore": 10,
+          "awayScore": 21,
+          "homeRingers": 3,
+          "awayRingers": 4
+        },
+        {
+          "homePlayer": "P Durrant",
+          "awayPlayer": "Simon Endersby",
+          "homeScore": 13,
+          "awayScore": 21,
+          "homeRingers": 2,
+          "awayRingers": 3
+        },
+        {
+          "homePlayer": "C Heap",
+          "awayPlayer": "Dave Smith",
+          "homeScore": 20,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 3
+        },
+        {
+          "homePlayer": "J Heap",
+          "awayPlayer": "Andy Newton",
+          "homeScore": 7,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 3
+        }
+      ]
     }
   ]
 }
