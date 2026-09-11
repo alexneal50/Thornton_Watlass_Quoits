@@ -1868,6 +1868,23 @@
           "awayRingers": 3
         }
       ]
+    },
+    {
+      "id": "m-1789124649736",
+      "date": "2026-06-18",
+      "type": "captains-cup",
+      "home": "Hunton",
+      "away": "Thornton Watlass",
+      "games": [
+        {
+          "homePlayer": "J Heap",
+          "awayPlayer": "Andy Newton",
+          "homeScore": 7,
+          "awayScore": 21,
+          "homeRingers": 1,
+          "awayRingers": 3
+        }
+      ]
     }
   ]
 }
