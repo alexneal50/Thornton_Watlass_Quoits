@@ -90,6 +90,13 @@ async function renderPage() {
 
       slot.innerHTML = filtered.map(r => {
         const pillClass = r.outcome === 'win' ? 'win' : r.outcome === 'loss' ? 'loss' : 'draw';
+        const isCaptains = r.type === 'captains-cup';
+        const outcomePill = isCaptains
+          ? `${r.outcome.toUpperCase()}`
+          : `${r.outcome.toUpperCase()} &middot; ${r.teamMatchPoints}&ndash;${r.oppMatchPoints}`;
+        const subline = isCaptains
+          ? `${formatDate(r.date)} &middot; ${r.teamPts}&ndash;${r.oppPts} points`
+          : `${formatDate(r.date)} &middot; ${r.teamGames}&ndash;${r.oppGames} games &middot; ${r.teamPts}&ndash;${r.oppPts} points`;
         const gameRows = r.games.map(g => {
           const hi = r.isHome;
           const ourP = hi ? g.homePlayer : g.awayPlayer;
@@ -104,10 +111,10 @@ async function renderPage() {
               <h3 style="margin:0;">vs ${r.opponent} <span style="font-weight:400; color:var(--ink-soft); font-size:.85rem;">(${r.isHome ? 'Home' : 'Away'})</span></h3>
               <div style="display:flex; gap:6px;">
                 <span class="pill ${matchTypePillClass(r.type)}">${matchTypeLabel(r.type).toUpperCase()}</span>
-                <span class="pill ${pillClass}">${r.outcome.toUpperCase()} &middot; ${r.teamMatchPoints}&ndash;${r.oppMatchPoints}</span>
+                <span class="pill ${pillClass}">${outcomePill}</span>
               </div>
             </div>
-            <p style="color:var(--ink-soft); font-size:.85rem; margin:2px 0 10px;">${formatDate(r.date)} &middot; ${r.teamGames}&ndash;${r.oppGames} games &middot; ${r.teamPts}&ndash;${r.oppPts} points</p>
+            <p style="color:var(--ink-soft); font-size:.85rem; margin:2px 0 10px;">${subline}</p>
             <table class="scores"><tbody>${gameRows}</tbody></table>
           </div>`;
       }).join('');
