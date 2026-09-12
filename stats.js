@@ -127,11 +127,30 @@ function computeLeagueTable(data) {
   );
 }
 
-// Captains Games form their own separate standings — they never touch the
-// main league table above, and aren't restricted to a single division since
-// captains fixtures can be played against any club.
+// Captains Games get the same table shape as the main league (P/W/D/L/Pts
+// For/Pts Against/Diff/Pts), but scored simply: 1 league point for a win,
+// 0 for a loss — no bonus-for-aggregate-points formula, since there's only
+// ever one game to compare, not several to add up.
 function computeCaptainsTable(data) {
-  return computeStandings(data, m => (m.type || 'league') === 'captains-cup', []);
+  const table = {};
+  const matches = data.matches.filter(m => (m.type || 'league') === 'captains-cup');
+  for (const m of matches) {
+    if (!table[m.home]) table[m.home] = { team: m.home, played: 0, won: 0, drawn: 0, lost: 0, ptsFor: 0, ptsAgainst: 0, leaguePoints: 0 };
+    if (!table[m.away]) table[m.away] = { team: m.away, played: 0, won: 0, drawn: 0, lost: 0, ptsFor: 0, ptsAgainst: 0, leaguePoints: 0 };
+    const g = m.games[0] || {};
+    const homeScore = Number(g.homeScore) || 0;
+    const awayScore = Number(g.awayScore) || 0;
+    const home = table[m.home], away = table[m.away];
+    home.played++; away.played++;
+    home.ptsFor += homeScore; home.ptsAgainst += awayScore;
+    away.ptsFor += awayScore; away.ptsAgainst += homeScore;
+    if (homeScore > awayScore) { home.won++; away.lost++; home.leaguePoints += 1; }
+    else if (awayScore > homeScore) { away.won++; home.lost++; away.leaguePoints += 1; }
+    else { home.drawn++; away.drawn++; }
+  }
+  return Object.values(table).sort((a, b) =>
+    b.leaguePoints - a.leaguePoints || (b.ptsFor - b.ptsAgainst) - (a.ptsFor - a.ptsAgainst)
+  );
 }
 
 /** Last n results for a team (within whichever matches are passed in),

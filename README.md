@@ -100,7 +100,13 @@ Every match is tagged when you enter it (defaults to League):
 - **Captains Cup**: a single-game fixture (the form only asks for one game
   when this is selected). These build their **own separate Captains League
   table**, shown on the League page below the main table &mdash; they never
-  affect Thornton Watlass's league position or the season summary.
+  affect Thornton Watlass's league position or the season summary. It has
+  the same columns as the main league table (Played, Won, Drawn, Lost, Points
+  For/Against, Diff, Points), but scored simply as 1 league point for a win
+  and 0 for a loss &mdash; no bonus for aggregate points, since there's only
+  ever one game to compare, not several to add up. Match cards on Results
+  and the League page's Recent Results show a plain WIN/LOSS for Captains
+  Cup rather than a games-plus-bonus scoreline, for the same reason.
 - **Friendly**: a normal full match, entered the same way as League or Cup.
   Counts toward player stats (with its own Friendlies table on Our Team) but
   never touches the main league table or season summary.

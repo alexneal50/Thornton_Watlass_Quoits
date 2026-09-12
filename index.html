@@ -83,7 +83,7 @@
 
   <section>
     <h2>Captains League</h2>
-    <p class="lede">Captains Games have their own standings, separate from the main league &mdash; they don't count toward Thornton Watlass's league position above.</p>
+    <p class="lede">Captains Games have their own standings, separate from the main league &mdash; they don't count toward Thornton Watlass's league position above. 1 point for a win, no bonus for aggregate points, since it's just one game.</p>
     <div class="table-wrap">
       <table class="scores" id="captains-table">
         <thead>
@@ -227,15 +227,22 @@ async function renderPage() {
         recentBody.innerHTML = '';
       }
       recent.forEach(m => {
-        const t = matchPoints(m);
         const type = m.type || 'league';
         const tr = document.createElement('tr');
         if (m.home === HOME_TEAM || m.away === HOME_TEAM) tr.className = 'highlight';
+        let scoreCell;
+        if (type === 'captains-cup') {
+          const g = m.games[0] || {};
+          scoreCell = `${g.homeScore}&ndash;${g.awayScore}`;
+        } else {
+          const t = matchPoints(m);
+          scoreCell = `${t.homeMatchPoints}&ndash;${t.awayMatchPoints} <span style="color:var(--ink-soft); font-weight:400;">(${t.homeWins}&ndash;${t.awayWins} games, ${t.homePts}&ndash;${t.awayPts} pts)</span>`;
+        }
         tr.innerHTML = `
           <td>${formatDate(m.date)}</td>
           <td><span class="pill ${matchTypePillClass(type)}" style="font-size:.62rem;">${type === 'captains-cup' ? 'CAP' : type === 'cup' ? 'CUP' : type === 'friendly' ? 'FRI' : 'LGE'}</span></td>
           <td>${m.home}</td>
-          <td class="num">${t.homeMatchPoints}&ndash;${t.awayMatchPoints} <span style="color:var(--ink-soft); font-weight:400;">(${t.homeWins}&ndash;${t.awayWins} games, ${t.homePts}&ndash;${t.awayPts} pts)</span></td>
+          <td class="num">${scoreCell}</td>
           <td>${m.away}</td>`;
         recentBody.appendChild(tr);
       });
